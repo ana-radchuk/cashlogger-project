@@ -1,7 +1,12 @@
 package com.radchuk.cashlogger.controller;
 
 import com.radchuk.cashlogger.domain.Transaction;
+import com.radchuk.cashlogger.domain.request.TransactionRequest;
+import com.radchuk.cashlogger.domain.response.TransactionResponse;
 import com.radchuk.cashlogger.service.TransactionService;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,40 +18,45 @@ import java.util.Optional;
 @RestController
 @CrossOrigin
 @AllArgsConstructor
-@RequestMapping(path = "api/v1")
+@RequestMapping(path = "api/v1/transactions")
 @Tag(name = "Transactions", description = "API for managing transactions")
 public class TransactionController {
 
     private final TransactionService transactionService;
 
-    @GetMapping(path = "/hello")
-    public String hello() {
-        return "Hello there!";
-    }
-
-    // Create or Update a Transaction
     @PostMapping
-    @Operation(summary = "Create a new transaction", description = "Creates a new transaction")
-    public Transaction createOrUpdateTransaction(@RequestBody Transaction transaction) {
-        return transactionService.saveTransaction(transaction);
+    @Operation(
+            summary = "Create transaction",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Transaction created",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = TransactionResponse.class)
+                            )
+                    )
+            }
+    )
+    public Transaction createTransaction(@RequestBody TransactionRequest transactionRequest) {
+        return transactionService.saveTransaction(transactionRequest);
     }
 
-    // Get All Transactions
     @GetMapping
-    @Operation(summary = "Get all transactions", description = "Fetches a list of all transactions")
+    @Operation(summary = "Get all transactions")
     public List<Transaction> getAllTransactions() {
         return transactionService.getAllTransactions();
     }
 
-    // Get a Transaction by ID
     @GetMapping("/{id}")
+    @Operation(summary = "Get transaction by ID")
     public Optional<Transaction> getTransactionById(@PathVariable Long id) {
         return transactionService.getTransactionById(id);
     }
 
-    // Delete a Transaction by ID
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete transaction by ID")
     public void deleteTransaction(@PathVariable Long id) {
-        transactionService.deleteTransaction(id);
+        transactionService.deleteTransactionById(id);
     }
 }
