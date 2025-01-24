@@ -14,7 +14,4 @@ public class TransactionRequest {
 
     @Schema(description = "Type of transaction: Income or Expense", example = "Expense")
     private String type;
-
-    @Schema(description = "Name of category", example = "Groceries")
-    private String category;
 }

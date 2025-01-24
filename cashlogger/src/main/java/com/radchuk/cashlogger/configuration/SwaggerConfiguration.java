@@ -1,4 +1,4 @@
-package com.radchuk.cashlogger.config;
+package com.radchuk.cashlogger.configuration;
 
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;

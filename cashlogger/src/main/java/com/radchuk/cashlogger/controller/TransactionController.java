@@ -2,8 +2,8 @@ package com.radchuk.cashlogger.controller;
 
 import com.radchuk.cashlogger.domain.Transaction;
 import com.radchuk.cashlogger.domain.request.TransactionRequest;
-import com.radchuk.cashlogger.domain.response.TransactionResponse;
 import com.radchuk.cashlogger.service.TransactionService;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @CrossOrigin
@@ -33,30 +32,66 @@ public class TransactionController {
                             description = "Transaction created",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = TransactionResponse.class)
+                                    schema = @Schema(implementation = Transaction.class)
                             )
                     )
             }
     )
-    public Transaction createTransaction(@RequestBody TransactionRequest transactionRequest) {
-        return transactionService.saveTransaction(transactionRequest);
+    public Transaction createTransaction(
+            @RequestParam(required = true) Long categoryId,
+            @RequestBody TransactionRequest transactionRequest) {
+        return transactionService.saveTransaction(transactionRequest, categoryId);
     }
 
     @GetMapping
-    @Operation(summary = "Get all transactions")
+    @Operation(
+            summary = "Get all transactions",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Transactions retrieved",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = Transaction.class))
+                            )
+                    )
+            }
+    )
     public List<Transaction> getAllTransactions() {
         return transactionService.getAllTransactions();
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get transaction by ID")
-    public Optional<Transaction> getTransactionById(@PathVariable Long id) {
-        return transactionService.getTransactionById(id);
+    @Operation(
+            summary = "Get transaction by id",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Transaction retrieved",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Transaction.class)
+                            )
+                    )
+            }
+    )
+    public Transaction getTransactionById(
+            @PathVariable("id") Long transactionId) {
+        return transactionService.getTransactionById(transactionId);
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete transaction by ID")
-    public void deleteTransaction(@PathVariable Long id) {
-        transactionService.deleteTransactionById(id);
+    @Operation(
+            summary = "Delete transaction by id",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Transaction deleted"
+                    )
+            }
+    )
+    public void deleteTransactionById(
+            @PathVariable("id") Long transactionId) {
+        transactionService.deleteTransactionById(transactionId);
     }
 }

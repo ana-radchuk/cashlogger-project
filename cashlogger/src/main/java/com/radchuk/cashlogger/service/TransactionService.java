@@ -5,40 +5,27 @@ import com.radchuk.cashlogger.domain.Transaction;
 import com.radchuk.cashlogger.domain.TransactionType;
 import com.radchuk.cashlogger.domain.request.TransactionRequest;
 import com.radchuk.cashlogger.repository.TransactionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class TransactionService {
-
     private final TransactionRepository transactionRepository;
+    private final CategoryService categoryService;
 
-    @Autowired
-    private CategoryService categoryService;
-
-    public TransactionService(TransactionRepository transactionRepository) {
-        this.transactionRepository = transactionRepository;
-    }
-
-    public Transaction saveTransaction(Transaction transaction) {
-        return transactionRepository.save(transaction);
-    }
-
-    public Transaction saveTransaction(TransactionRequest transactionRequest) {
+    public Transaction saveTransaction(TransactionRequest transactionRequest, Long categoryId) {
         Transaction transaction = new Transaction();
         transaction.setName(transactionRequest.getName());
         transaction.setAmount(transactionRequest.getAmount());
         transaction.setTransactionType(TransactionType.convertToTransactionType(transactionRequest.getType()));
         transaction.setCreatedAt(LocalDateTime.now());
 
-        if (!transactionRequest.getCategory().isEmpty()) {
-            Category category = categoryService.findCategoryByName(transactionRequest.getCategory());
-            transaction.setCategory(category);
-        }
+        Category category = categoryService.getCategoryById(categoryId);
+        transaction.setCategory(category);
         return transactionRepository.save(transaction);
     }
 
@@ -46,11 +33,13 @@ public class TransactionService {
         return transactionRepository.findAll();
     }
 
-    public Optional<Transaction> getTransactionById(Long id) {
-        return transactionRepository.findById(id);
+    public Transaction getTransactionById(Long transactionId) {
+        return transactionRepository
+                .findById(transactionId)
+                .orElseThrow(() -> new RuntimeException("Transaction not found with id: " + transactionId));
     }
 
-    public void deleteTransactionById(Long id) {
-        transactionRepository.deleteById(id);
+    public void deleteTransactionById(Long transactionId) {
+        transactionRepository.deleteById(transactionId);
     }
 }
