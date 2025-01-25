@@ -18,7 +18,7 @@ import java.util.List;
 @CrossOrigin
 @AllArgsConstructor
 @RequestMapping(path = "api/v1/categories")
-@Tag(name = "Category", description = "API for managing categories")
+@Tag(name = "Categories", description = "API for managing categories")
 public class CategoryController {
 
     private final CategoryService categoryService;
