@@ -8,4 +8,7 @@ public class CategoryRequest {
 
     @Schema(description = "Name of category", example = "Groceries", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
+
+    @Schema(description = "Emoji of category", example = "🛒")
+    private String emoji;
 }

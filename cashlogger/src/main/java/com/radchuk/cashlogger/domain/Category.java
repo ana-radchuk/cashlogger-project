@@ -23,6 +23,9 @@ public class Category {
     @Schema(description = "Name of category", example = "Groceries")
     private String name;
 
+    @Schema(description = "Emoji of category", example = "🛒")
+    private String emoji;
+
     @OneToMany(
             mappedBy = "category",
             cascade = CascadeType.ALL,
