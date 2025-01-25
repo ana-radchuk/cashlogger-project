@@ -1,9 +1,10 @@
 import Category from "./components/Category";
+import Transaction from "./components/Transaction";
 
 const App = () => {
   return (
     <div>
-        <Category />
+        <Transaction />
     </div>
 
 

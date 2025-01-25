@@ -40,7 +40,7 @@ export default class Category extends Component {
                             <p className="text-gray-600 text-center">No categories available. Add one above!</p>
                         )}
                     </div>
-                    
+
                 </div>
             </div>
         );
