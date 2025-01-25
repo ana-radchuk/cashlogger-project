@@ -4,10 +4,8 @@ import Transaction from "./components/Transaction";
 const App = () => {
   return (
     <div>
-        <Transaction />
+      <Transaction />
     </div>
-
-
     // <div className="flex flex-col h-screen p-4 space-y-4">
     //   {/* Navigation bar */}
     //   <div className="border basis-10">Row 1</div>

@@ -9,7 +9,7 @@ export default class AddCategory extends Component {
       selectedEmoji: "",
     };
     this.nameRef = createRef();
-    this.emojiPickerRef = createRef(); 
+    this.emojiPickerRef = createRef();
   }
 
   componentDidMount() {
@@ -35,14 +35,16 @@ export default class AddCategory extends Component {
 
   toggleEmojiPicker = () => {
     event.stopPropagation();
-    this.setState((prevState) => ({ showEmojiPicker: !prevState.showEmojiPicker }));
+    this.setState((prevState) => ({
+      showEmojiPicker: !prevState.showEmojiPicker,
+    }));
   };
 
   submitCategory(event) {
     event.preventDefault();
 
     let category = {
-      name: this.nameRef.current.value, 
+      name: this.nameRef.current.value,
       emoji: this.state.selectedEmoji,
     };
 
@@ -68,9 +70,11 @@ export default class AddCategory extends Component {
           <h1 className="text-xl font-semibold text-gray-800 text-center pb-2">
             Add Category
           </h1>
-          <form onSubmit={this.submitCategory.bind(this)} className="space-y-4">
-             {/* Category Name and Emoji Picker Combined */}
-             <div className="flex items-center">
+          <form onSubmit={this.submitCategory.bind(this)} className="space-y-4"
+          >
+            
+            {/* Category Name and Emoji Picker Combined */}
+            <div className="flex items-center">
               {/* Input for Category Name */}
               <input
                 type="text"
@@ -79,6 +83,7 @@ export default class AddCategory extends Component {
                 className="flex-grow h-12 px-4 py-2 border border-gray-300 rounded-l-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Enter category name"
               />
+
               {/* Button for Emoji Picker */}
               <button
                 type="button"
@@ -87,6 +92,7 @@ export default class AddCategory extends Component {
               >
                 {selectedEmoji || "🚀"}
               </button>
+              
               {showEmojiPicker && (
                 <div
                   ref={this.emojiPickerRef}
@@ -96,7 +102,6 @@ export default class AddCategory extends Component {
                 </div>
               )}
             </div>
-
 
             {/* Submit Button */}
             <div className="flex justify-center">
