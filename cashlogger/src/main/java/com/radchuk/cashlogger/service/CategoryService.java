@@ -1,6 +1,7 @@
 package com.radchuk.cashlogger.service;
 
 import com.radchuk.cashlogger.domain.Category;
+import com.radchuk.cashlogger.domain.Type;
 import com.radchuk.cashlogger.domain.request.CategoryRequest;
 import com.radchuk.cashlogger.repository.CategoryRepository;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,7 @@ public class CategoryService {
     public Category saveCategory(CategoryRequest categoryRequest) {
         Category category = new Category();
         category.setName(categoryRequest.getName());
+        category.setCategoryType(Type.convertToType(categoryRequest.getType()));
         if (categoryRequest.getEmoji() != null) {
             category.setEmoji(categoryRequest.getEmoji());
         }

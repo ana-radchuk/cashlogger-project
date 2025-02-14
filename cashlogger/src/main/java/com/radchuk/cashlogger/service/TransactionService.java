@@ -2,13 +2,13 @@ package com.radchuk.cashlogger.service;
 
 import com.radchuk.cashlogger.domain.Category;
 import com.radchuk.cashlogger.domain.Transaction;
-import com.radchuk.cashlogger.domain.TransactionType;
+import com.radchuk.cashlogger.domain.Type;
 import com.radchuk.cashlogger.domain.request.TransactionRequest;
 import com.radchuk.cashlogger.repository.TransactionRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Service
@@ -21,8 +21,8 @@ public class TransactionService {
         Transaction transaction = new Transaction();
         transaction.setName(transactionRequest.getName());
         transaction.setAmount(transactionRequest.getAmount());
-        transaction.setTransactionType(TransactionType.convertToTransactionType(transactionRequest.getType()));
-        transaction.setCreatedAt(LocalDateTime.now());
+        transaction.setTransactionType(Type.convertToType(transactionRequest.getType()));
+        transaction.setCreatedAt(OffsetDateTime.parse(transactionRequest.getCreatedAt()));
 
         Category category = categoryService.getCategoryById(categoryId);
         transaction.setCategory(category);

@@ -14,4 +14,10 @@ public class TransactionRequest {
 
     @Schema(description = "Type of transaction: Income or Expense", example = "Expense")
     private String type;
+
+    @Schema(
+            description = "Date and time when the transaction was created, in ISO 8601 format",
+            example = "2025-02-11T14:30:00Z"
+    )
+    private String createdAt;
 }

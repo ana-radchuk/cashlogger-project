@@ -5,18 +5,18 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum TransactionType {
+public enum Type {
     INCOME("Income"),
     EXPENSE("Expense");
 
     private final String displayType;
 
-    public static TransactionType convertToTransactionType(String displayType) {
-        for (TransactionType type : values()) {
+    public static Type convertToType(String displayType) {
+        for (Type type : values()) {
             if (type.getDisplayType().equalsIgnoreCase(displayType)) {
                 return type;
             }
         }
-        throw new IllegalArgumentException("Invalid TransactionType: " + displayType);
+        throw new IllegalArgumentException("Invalid Type: " + displayType);
     }
 }

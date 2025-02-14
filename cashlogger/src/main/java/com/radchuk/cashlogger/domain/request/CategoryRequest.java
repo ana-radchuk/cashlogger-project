@@ -11,4 +11,8 @@ public class CategoryRequest {
 
     @Schema(description = "Emoji of category", example = "🛒")
     private String emoji;
+
+    @Schema(description = "Type of category: Income or Expense", example = "Expense")
+    private String type;
+
 }

@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Data
@@ -24,10 +24,10 @@ public class Transaction {
 
     @Enumerated(EnumType.STRING)
     @Schema(description = "Type of transaction", example = "EXPENSE")
-    private TransactionType transactionType;
+    private Type transactionType;
 
     @Schema(description = "Timestamp when transaction was created", example = "2025-01-16T20:30:00")
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

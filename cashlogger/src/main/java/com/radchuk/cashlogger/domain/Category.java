@@ -1,7 +1,6 @@
 package com.radchuk.cashlogger.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -25,6 +24,10 @@ public class Category {
 
     @Schema(description = "Emoji of category", example = "🛒")
     private String emoji;
+
+    @Enumerated(EnumType.STRING)
+    @Schema(description = "Type of category", example = "EXPENSE")
+    private Type categoryType;
 
     @OneToMany(
             mappedBy = "category",
