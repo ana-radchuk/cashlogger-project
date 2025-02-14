@@ -1,11 +1,21 @@
-import Category from "./components/Category";
-import Transaction from "./components/Transaction";
+import AddCategory from "./components/category/AddCategory";
+import CurrentBalance from "./components/CurrentBalance";
+import AddTransaction from "./components/transaction/AddTransaction";
 
 const App = () => {
   return (
-    <div>
-      <Transaction />
+    <div className="flex flex-col space-y-4">
+      <div>
+        <AddCategory />
+      </div>
+      <div>
+        <CurrentBalance />
+      </div>
+      <div>
+        <AddTransaction />
+      </div>
     </div>
+
     // <div className="flex flex-col h-screen p-4 space-y-4">
     //   {/* Navigation bar */}
     //   <div className="border basis-10">Row 1</div>
@@ -14,14 +24,17 @@ const App = () => {
     //   <div className="flex flex-1 space-x-4">
 
     //     {/* Left Column */}
-    //     <div className="flex flex-col basis-1/4 space-y-4">         
-    //       <div className="border flex-1 basis-1/3">Box 1.1</div>
-    //       <div className="border flex-1 basis-1/2">Box 1.2</div>
-    //       <div className="border flex-1 basis-1/2">Box 1.3</div>
+    //     <div className="flex flex-col basis-1/3 space-y-4">
+    //       <div className="flex-1 basis-1/3">
+    //       <CurrentBalance />
+    //       </div>
+    //       <div className="flex-1 basis-2/3">
+    //         <AddTransaction />
+    //       </div>
     //     </div>
 
     //     {/* Right Column */}
-    //     <div className="flex flex-col basis-3/4 space-y-4">
+    //     <div className="flex flex-col basis-2/3 space-y-4">
     //       <div className="flex flex-1 border basis-2/3 space-x-4">
 
     //         <div className="flex flex-col basis-2/4 space-y-4">
@@ -46,7 +59,7 @@ const App = () => {
     //   {/* Footer bar */}
     //   <div className="border basis-10">Row 2</div>
     // </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;

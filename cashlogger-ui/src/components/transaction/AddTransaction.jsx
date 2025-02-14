@@ -18,9 +18,10 @@ export default class AddTransaction extends Component {
     this.dateRef = createRef();
     this.carouselRef = createRef();
     this.state = {
-      transactionType: "expense",
+      transactionType: "Expense",
       selectedDateTime: new Date(),
       categories: [],
+      filteredCategories: [],
       selectedCategory: null,
       loading: true,
       error: null,
@@ -33,6 +34,27 @@ export default class AddTransaction extends Component {
     this.fetchCategories();
   }
 
+  setTransactionType = (type) => {
+    this.setState(
+      {
+        transactionType: type,
+      },
+      this.filterCategories() // Call filterCategories to update the list
+    );
+  };
+
+  filterCategories = () => {
+    const { categories, transactionType } = this.state;
+    const filteredCategories = categories.filter(
+      (category) => category.categoryType === transactionType.toUpperCase()
+    );
+  
+    this.setState({
+      filteredCategories, 
+      selectedCategory: filteredCategories.length > 0 ? filteredCategories[0].id : null,
+    });
+  }; 
+
   fetchCategories = async () => {
     try {
       const response = await fetch("http://localhost:8080/api/v1/categories");
@@ -43,7 +65,9 @@ export default class AddTransaction extends Component {
         categories: data,
         selectedCategory: data.length > 0 ? data[0].id : null,
         loading: false,
-      });
+      }, 
+      this.filterCategories // filter categories after fetching them
+    );
     } catch (error) {
       this.setState({ error: error.message, loading: false });
     }
@@ -63,10 +87,6 @@ export default class AddTransaction extends Component {
 
   handleBlur = () => {
     this.setState({ isEditing: false });
-  };
-
-  setTransactionType = (type) => {
-    this.setState({ transactionType: type });
   };
 
   setCategory = (categoryId) => {
@@ -109,6 +129,27 @@ export default class AddTransaction extends Component {
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
+  handleAmountChange = (e) => {
+    let value = e.target.value;
+  
+    // Allow only digits and one dot
+    const regex = /^[0-9]*\.?[0-9]*$/;
+    if (!regex.test(value)) {
+      return; // Exit if the input contains invalid characters
+    }
+  
+    // Allow only two decimal places
+    if (value.includes(".")) {
+      const [integerPart, decimalPart] = value.split(".");
+      if (decimalPart.length > 2) {
+        value = `${integerPart}.${decimalPart.substring(0, 2)}`;
+      }
+    }
+  
+    // Update the input field
+    e.target.value = value;
+  };  
+
   scrollCarousel = (direction) => {
     if (this.carouselRef.current) {
       this.carouselRef.current.scrollBy({
@@ -119,7 +160,7 @@ export default class AddTransaction extends Component {
   };
 
   submitTransaction = (event) => {
-    event.preventDefault(); // ✅ Prevents accidental page reload
+    event.preventDefault(); 
 
     let transaction = {
       categoryId: parseInt(this.state.selectedCategory),
@@ -129,7 +170,9 @@ export default class AddTransaction extends Component {
       createdAt: this.state.selectedDateTime.toISOString(),
     };
 
-    fetch("http://localhost:8080/api/v1/transactions", {
+    console.log(transaction);
+
+    fetch(`http://localhost:8080/api/v1/transactions?categoryId=${transaction.categoryId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(transaction),
@@ -156,7 +199,7 @@ export default class AddTransaction extends Component {
       <div className="relative flex justify-center items-center">
         {/* Main form container */}
         <div
-          className={`w-full max-w-md bg-white rounded-2xl shadow-lg p-6 ${
+          className={`w-full max-w-md bg-white rounded shadow-lg p-6 ${
             showAddCategory ? "opacity-50" : ""
           }`}
         >
@@ -172,6 +215,7 @@ export default class AddTransaction extends Component {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Amount
                 </label>
+
                 <div className="relative">
                   <span className="absolute inset-y-0 left-3 flex items-center text-gray-500">
                     <FaDollarSign />
@@ -183,6 +227,7 @@ export default class AddTransaction extends Component {
                     ref={this.amountRef}
                     className="w-full h-12 pl-8 pr-4 border-b border-gray-300 shadow-sm focus:outline-none focus:ring-0 focus:border-emerald-500 text-gray-700"
                     placeholder="0.00"
+                    onChange={this.handleAmountChange}
                   />
                 </div>
               </div>
@@ -195,9 +240,9 @@ export default class AddTransaction extends Component {
                 <div className="flex p-1 h-12 border-b border-gray-300 shadow-sm gap-1">
                   <button
                     type="button"
-                    onClick={() => this.setTransactionType("expense")}
+                    onClick={() => this.setTransactionType("Expense")}
                     className={`flex-1 px-2 py-1 text-xs rounded-lg transition ${
-                      transactionType === "expense"
+                      transactionType === "Expense"
                         ? "bg-red-500 text-white"
                         : "bg-gray-200 text-gray-600 hover:bg-gray-300 transition"
                     }`}
@@ -206,9 +251,9 @@ export default class AddTransaction extends Component {
                   </button>
                   <button
                     type="button"
-                    onClick={() => this.setTransactionType("income")}
+                    onClick={() => this.setTransactionType("Income")}
                     className={`flex-1 px-2 py-1 text-xs rounded-lg transition ${
-                      transactionType === "income"
+                      transactionType === "Income"
                         ? "bg-green-500 text-white"
                         : "bg-gray-200 text-gray-600 hover:bg-gray-300 transition"
                     }`}
@@ -228,7 +273,7 @@ export default class AddTransaction extends Component {
                 type="text"
                 ref={this.nameRef}
                 className="w-full h-12 px-4 border-b border-gray-300 shadow-sm focus:outline-none focus:ring-0 focus:border-emerald-500 text-gray-700"
-                placeholder="Enter transaction name"
+                placeholder="Enter transaction"
               />
             </div>
 
@@ -239,6 +284,7 @@ export default class AddTransaction extends Component {
               </label>
 
               <div className="flex space-x-4 border-b shadow-sm">
+                
                 {/* Category Carousel */}
                 <div className="w-full flex items-center rounded-lg p-2">
                   <FaChevronLeft
@@ -254,7 +300,7 @@ export default class AddTransaction extends Component {
                     ) : error ? (
                       <span className="text-red-500">{error}</span>
                     ) : (
-                      categories.map((category) => (
+                      (this.state.filteredCategories || []).map((category) => (
                         <button
                           key={category.id}
                           onClick={(e) => {

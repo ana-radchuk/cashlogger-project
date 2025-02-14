@@ -13,7 +13,6 @@ const SingleTransaction = ({ transaction }) => {
 
   return (
     <div className="flex justify-between items-center bg-white border border-gray-300 rounded-lg shadow-md p-4 hover:shadow-lg transition transform hover:scale-105">
-      
       {/* Left Section: Transaction Information */}
       <div className="flex flex-col space-y-1">
         {/* Transaction Name */}
@@ -23,12 +22,21 @@ const SingleTransaction = ({ transaction }) => {
 
         {/* Transaction Details */}
         <div className="flex flex-wrap text-sm text-gray-600">
-            <p className="font-medium text-emerald-600 mr-4">
-              {transaction.transactionType === "INCOME" ? "+" : "-"}${transaction.amount}
-            </p>
-            <p className="font-medium text-gray-500">
-              {new Date(transaction.createdAt).toUTCString()}
-            </p>
+          <p className="font-medium text-emerald-600 mr-4">
+            {transaction.transactionType === "INCOME" ? "+" : "-"}$
+            {transaction.amount}
+          </p>
+          <p className="font-medium text-gray-500">
+            {new Date(transaction.createdAt).toLocaleString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              timeZoneName: "short", 
+            })}
+          </p>
         </div>
       </div>
 

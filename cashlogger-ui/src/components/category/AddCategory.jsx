@@ -1,5 +1,6 @@
 import React, { Component, createRef } from "react";
 import EmojiPicker from "emoji-picker-react";
+import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 
 export default class AddCategory extends Component {
   constructor(props) {
@@ -7,6 +8,7 @@ export default class AddCategory extends Component {
     this.state = {
       showEmojiPicker: false,
       selectedEmoji: "",
+      categoryType: "Expense",
     };
     this.nameRef = createRef();
     this.emojiPickerRef = createRef();
@@ -40,12 +42,19 @@ export default class AddCategory extends Component {
     }));
   };
 
+  setCategoryType = (type) => {
+    this.setState({
+      categoryType: type,
+    });
+  };
+
   submitCategory(event) {
     event.preventDefault();
 
     let category = {
       name: this.nameRef.current.value,
       emoji: this.state.selectedEmoji,
+      type: this.state.categoryType,
     };
 
     fetch("http://localhost:8080/api/v1/categories", {
@@ -62,54 +71,91 @@ export default class AddCategory extends Component {
   }
 
   render() {
-    const { showEmojiPicker, selectedEmoji } = this.state;
+    const { showEmojiPicker, selectedEmoji, categoryType } = this.state;
 
     return (
       <div className="flex justify-center items-center">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6">
-          <h1 className="text-xl font-semibold text-gray-800 text-center pb-2">
-            Add Category
+        <div className="w-full max-w-md bg-white rounded shadow-lg p-6">
+          <h1 className="text-xl font-semibold text-gray-700 text-center pb-4">
+            Category Management
           </h1>
-          <form onSubmit={this.submitCategory.bind(this)} className="space-y-4"
-          >
-            
-            {/* Category Name and Emoji Picker Combined */}
-            <div className="flex items-center">
-              {/* Input for Category Name */}
-              <input
-                type="text"
-                id="name"
-                ref={this.nameRef}
-                className="flex-grow h-12 px-4 py-2 border border-gray-300 rounded-l-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Enter category name"
-              />
 
-              {/* Button for Emoji Picker */}
-              <button
-                type="button"
-                onClick={this.toggleEmojiPicker}
-                className="flex-shrink-0 w-12 h-12 bg-gray-50 border border-gray-300 rounded-r-lg flex justify-center items-center shadow-sm hover:bg-gray-100 focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                {selectedEmoji || "🚀"}
-              </button>
-              
-              {showEmojiPicker && (
-                <div
-                  ref={this.emojiPickerRef}
-                  className="absolute z-10 mt-20 bg-white border border-gray-300 rounded-lg shadow-lg"
-                >
-                  <EmojiPicker onEmojiClick={this.handleEmojiClick} />
+          <form onSubmit={this.submitCategory.bind(this)} className="space-y-6">
+            <div className="flex space-x-4">
+              <div className="w-1/2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Title & Emoji
+                </label>
+
+                {/* Input with Emoji Button */}
+                <div className="flex items-center">
+                  <input
+                    type="text"
+                    ref={this.nameRef}
+                    className="w-full h-12 px-4 border-b shadow-sm focus:outline-none focus:ring-0 focus:border-violet-500 text-gray-700"
+                    placeholder="Enter category"
+                  />
+
+                  {/* Button for Emoji Picker */}
+                  <button
+                    type="button"
+                    onClick={this.toggleEmojiPicker}
+                    className="flex-shrink-0 w-12 h-12 border-b border-l shadow-sm flex justify-center items-center hover:bg-gray-200"
+                  >
+                    {this.state.selectedEmoji || "🚀"}
+                  </button>
                 </div>
-              )}
+
+                {/* Emoji Picker */}
+                {this.state.showEmojiPicker && (
+                  <div
+                    ref={this.emojiPickerRef}
+                    className="absolute z-10 mt-2 bg-whit"
+                  >
+                    <EmojiPicker onEmojiClick={this.handleEmojiClick} />
+                  </div>
+                )}
+              </div>
+
+              <div className="w-1/2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Type
+                </label>
+
+                <div className="flex p-1 h-12 border-b border-gray-300 shadow-sm gap-1">
+                  <button
+                    type="button"
+                    onClick={() => this.setCategoryType("Expense")}
+                    className={`flex-1 px-2 py-1 text-xs rounded-lg transition ${
+                      categoryType === "Expense"
+                        ? "bg-red-500 text-white"
+                        : "bg-gray-200 text-gray-600 hover:bg-gray-300 transition"
+                    }`}
+                  >
+                    <FaArrowUp className="text-xs" /> Expense
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => this.setCategoryType("Income")}
+                    className={`flex-1 px-2 py-1 text-xs rounded-lg transition ${
+                      categoryType === "Income"
+                        ? "bg-green-500 text-white"
+                        : "bg-gray-200 text-gray-600 hover:bg-gray-300 transition"
+                    }`}
+                  >
+                    <FaArrowDown className="text-xs" /> Income
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* Submit Button */}
             <div className="flex justify-center">
               <button
                 type="submit"
-                className="w-full bg-indigo-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-600 transition"
+                className="w-full bg-violet-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-violet-600 transition"
               >
-                Submit
+                Add Category
               </button>
             </div>
           </form>
