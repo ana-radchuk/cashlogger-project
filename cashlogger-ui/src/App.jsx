@@ -1,4 +1,5 @@
 import AddCategory from "./components/category/AddCategory";
+import Transaction from "./components/transaction/Transaction";
 import CurrentBalance from "./components/CurrentBalance";
 import AddTransaction from "./components/transaction/AddTransaction";
 
@@ -6,13 +7,16 @@ const App = () => {
   return (
     <div className="flex flex-col space-y-4">
       <div>
+        <Transaction />
+      </div>
+      <div>
+        <AddTransaction />
+      </div>
+      <div>
         <AddCategory />
       </div>
       <div>
         <CurrentBalance />
-      </div>
-      <div>
-        <AddTransaction />
       </div>
     </div>
 

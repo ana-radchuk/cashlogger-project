@@ -2,6 +2,7 @@ package com.radchuk.cashlogger.controller;
 
 import com.radchuk.cashlogger.domain.Category;
 import com.radchuk.cashlogger.domain.request.CategoryRequest;
+import com.radchuk.cashlogger.exception.ItemAlreadyExistsException;
 import com.radchuk.cashlogger.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -10,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,12 +37,20 @@ public class CategoryController {
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = Category.class)
                             )
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Category already exists"
                     )
             }
     )
-    public Category createCategory(
-            @RequestBody CategoryRequest categoryRequest) {
-        return categoryService.saveCategory(categoryRequest);
+    public ResponseEntity<Category> createCategory(@RequestBody CategoryRequest categoryRequest) {
+        try {
+            Category createdCategory = categoryService.saveCategory(categoryRequest);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
+        } catch (ItemAlreadyExistsException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
     }
 
     @GetMapping

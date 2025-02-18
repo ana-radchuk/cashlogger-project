@@ -1,10 +1,9 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { FaChevronDown, FaDollarSign } from "react-icons/fa";
 
 const CurrentBalance = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState("February"); // Default to current month
-  const dropdownRef = useRef(null);
 
   const months = [
     "January",
@@ -26,19 +25,6 @@ const CurrentBalance = () => {
     setShowDropdown(false);
   };
 
-  const handleClickOutside = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-      setShowDropdown(false);
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
   return (
     <div className="relative flex justify-center items-center">
       <div className="w-full max-w-md bg-white p-6 shadow-lg rounded">
@@ -50,14 +36,12 @@ const CurrentBalance = () => {
         {/* Month Selector */}
         <div className="relative flex items-center gap-4">
           <div className="w-1/2 mb-4">
-
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Month
             </label>
-
             <div
               className="flex items-center justify-between border-b shadow-sm px-4 py-2 cursor-pointer text-gray-700 hover:border-amber-500"
-              onClick={() => setShowDropdown(!showDropdown)}
+              onClick={() => setShowDropdown((prev) => !prev)}
             >
               <span>{selectedMonth}</span>
               <FaChevronDown className="text-gray-500" />
@@ -65,7 +49,6 @@ const CurrentBalance = () => {
 
             {showDropdown && (
               <ul
-                ref={dropdownRef}
                 className="absolute bg-white border rounded shadow-sm mt-1 w-1/2 z-10"
               >
                 {months.map((month) => (
@@ -87,7 +70,7 @@ const CurrentBalance = () => {
               Total
             </label>
             <div className="flex items-center border-b shadow-sm px-4 py-2">
-            <span className="text-gray-500 mr-2">
+              <span className="text-gray-500 mr-2">
                 <FaDollarSign />
               </span>
               <input
@@ -102,13 +85,11 @@ const CurrentBalance = () => {
 
         {/* Income and Expense Section */}
         <div className="flex items-center gap-4">
-
-          {/* Expense Label */}
+          {/* Income Section */}
           <div className="w-1/2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Income
             </label>
-
             <div className="flex items-center border-b shadow-sm px-4 py-2">
               <span className="text-gray-500 mr-2">
                 <FaDollarSign />
@@ -122,15 +103,13 @@ const CurrentBalance = () => {
             </div>
           </div>
 
-          {/* Income Section */}
+          {/* Expense Section */}
           <div className="w-1/2">
-
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Expenses
             </label>
-
             <div className="flex items-center border-b shadow-sm px-4 py-2">
-            <span className="text-gray-500 mr-2">
+              <span className="text-gray-500 mr-2">
                 <FaDollarSign />
               </span>
               <input

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import SingleCategory from './category/SingleCategory';
-import AddCategory from './category/AddCategory';
+import SingleCategory from './SingleCategory';
+import AddCategory from './AddCategory';
 
 export default class Category extends Component {
     constructor(props) {

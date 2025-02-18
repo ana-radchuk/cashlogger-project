@@ -1,12 +1,13 @@
 import React, { Component, createRef } from "react";
 import {
-  FaArrowUp,
-  FaArrowDown,
   FaCalendarAlt,
   FaDollarSign,
   FaPlus,
   FaChevronLeft,
   FaChevronRight,
+  FaTimes,
+  FaArrowCircleDown,
+  FaArrowCircleUp,
 } from "react-icons/fa";
 import AddCategory from "../category/AddCategory";
 
@@ -39,7 +40,7 @@ export default class AddTransaction extends Component {
       {
         transactionType: type,
       },
-      this.filterCategories() // Call filterCategories to update the list
+      this.filterCategories
     );
   };
 
@@ -48,12 +49,13 @@ export default class AddTransaction extends Component {
     const filteredCategories = categories.filter(
       (category) => category.categoryType === transactionType.toUpperCase()
     );
-  
+
     this.setState({
-      filteredCategories, 
-      selectedCategory: filteredCategories.length > 0 ? filteredCategories[0].id : null,
+      filteredCategories,
+      selectedCategory:
+        filteredCategories.length > 0 ? filteredCategories[0].id : null,
     });
-  }; 
+  };
 
   fetchCategories = async () => {
     try {
@@ -61,13 +63,14 @@ export default class AddTransaction extends Component {
       if (!response.ok)
         throw new Error(`HTTP Error! Status: ${response.status}`);
       const data = await response.json();
-      this.setState({
-        categories: data,
-        selectedCategory: data.length > 0 ? data[0].id : null,
-        loading: false,
-      }, 
-      this.filterCategories // filter categories after fetching them
-    );
+      this.setState(
+        {
+          categories: data,
+          selectedCategory: data.length > 0 ? data[0].id : null,
+          loading: false,
+        },
+        this.filterCategories
+      );
     } catch (error) {
       this.setState({ error: error.message, loading: false });
     }
@@ -112,10 +115,10 @@ export default class AddTransaction extends Component {
   formatDateTime = (date) => {
     return date.toLocaleString("en-CA", {
       year: "numeric",
-      month: "long",
+      month: "short",
       day: "numeric",
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
     });
   };
 
@@ -131,13 +134,13 @@ export default class AddTransaction extends Component {
 
   handleAmountChange = (e) => {
     let value = e.target.value;
-  
+
     // Allow only digits and one dot
     const regex = /^[0-9]*\.?[0-9]*$/;
     if (!regex.test(value)) {
       return; // Exit if the input contains invalid characters
     }
-  
+
     // Allow only two decimal places
     if (value.includes(".")) {
       const [integerPart, decimalPart] = value.split(".");
@@ -145,10 +148,10 @@ export default class AddTransaction extends Component {
         value = `${integerPart}.${decimalPart.substring(0, 2)}`;
       }
     }
-  
+
     // Update the input field
     e.target.value = value;
-  };  
+  };
 
   scrollCarousel = (direction) => {
     if (this.carouselRef.current) {
@@ -159,8 +162,12 @@ export default class AddTransaction extends Component {
     }
   };
 
+  closeAddCategory = () => {
+    this.setState({ showAddCategory: false });
+  };
+
   submitTransaction = (event) => {
-    event.preventDefault(); 
+    event.preventDefault();
 
     let transaction = {
       categoryId: parseInt(this.state.selectedCategory),
@@ -172,11 +179,14 @@ export default class AddTransaction extends Component {
 
     console.log(transaction);
 
-    fetch(`http://localhost:8080/api/v1/transactions?categoryId=${transaction.categoryId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(transaction),
-    })
+    fetch(
+      `http://localhost:8080/api/v1/transactions?categoryId=${transaction.categoryId}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(transaction),
+      }
+    )
       .then((response) => response.json())
       .then(() => {
         window.location.reload();
@@ -186,7 +196,6 @@ export default class AddTransaction extends Component {
   render() {
     const {
       transactionType,
-      categories,
       selectedCategory,
       loading,
       error,
@@ -209,6 +218,7 @@ export default class AddTransaction extends Component {
           </h1>
 
           <form onSubmit={this.submitTransaction} className="space-y-6">
+            
             {/* Amount & Transaction Type */}
             <div className="flex space-x-4">
               <div className="w-1/2">
@@ -237,29 +247,35 @@ export default class AddTransaction extends Component {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Type
                 </label>
+                
                 <div className="flex p-1 h-12 border-b border-gray-300 shadow-sm gap-1">
+                  
                   <button
                     type="button"
                     onClick={() => this.setTransactionType("Expense")}
-                    className={`flex-1 px-2 py-1 text-xs rounded-lg transition ${
+                    className={`flex-1 px-1 py-0.5 text-xs rounded-lg transition ${
                       transactionType === "Expense"
                         ? "bg-red-500 text-white"
                         : "bg-gray-200 text-gray-600 hover:bg-gray-300 transition"
                     }`}
                   >
-                    <FaArrowUp className="text-xs" /> Expense
+                    <FaArrowCircleDown className="text-xs" /> 
+                    <span className="text-xs">Expense</span>
                   </button>
+                  
                   <button
                     type="button"
                     onClick={() => this.setTransactionType("Income")}
-                    className={`flex-1 px-2 py-1 text-xs rounded-lg transition ${
+                    className={`flex-1 px-1 py-0.5 text-xs rounded-lg transition ${
                       transactionType === "Income"
                         ? "bg-green-500 text-white"
                         : "bg-gray-200 text-gray-600 hover:bg-gray-300 transition"
                     }`}
                   >
-                    <FaArrowDown className="text-xs" /> Income
+                    <FaArrowCircleUp className="text-xs" /> 
+                    <span className="text-xs">Income</span>
                   </button>
+
                 </div>
               </div>
             </div>
@@ -283,14 +299,14 @@ export default class AddTransaction extends Component {
                 Category
               </label>
 
+              {/* Category Carousel */}
               <div className="flex space-x-4 border-b shadow-sm">
-                
-                {/* Category Carousel */}
                 <div className="w-full flex items-center rounded-lg p-2">
                   <FaChevronLeft
                     onClick={() => this.scrollCarousel("left")}
                     className="text-gray-500 cursor-pointer mr-2"
                   />
+
                   <div
                     ref={this.carouselRef}
                     className="overflow-x-auto whitespace-nowrap flex space-x-2 w-full"
@@ -299,26 +315,35 @@ export default class AddTransaction extends Component {
                       <span className="text-gray-500">Loading...</span>
                     ) : error ? (
                       <span className="text-red-500">{error}</span>
-                    ) : (
-                      (this.state.filteredCategories || []).map((category) => (
+                    ) : this.state.filteredCategories.length > 0 ? (
+                      this.state.filteredCategories.map((category) => (
                         <button
                           key={category.id}
                           onClick={(e) => {
                             e.preventDefault();
                             this.setCategory(category.id);
                           }}
-                          className={`px-4 py-1 rounded-lg flex flex-col items-center ${
+                          className={`text-gray-600 rounded-lg px-2 py-1 text-xs font-medium transition
+                          ${
                             selectedCategory === category.id
                               ? "bg-blue-500 text-white"
                               : "bg-gray-200 text-gray-600 hover:bg-gray-300 transition"
-                          }`}
+                          }
+                          `}
                         >
-                          <span className="text-lg">{category.emoji}</span>
+                          <span className="text-lg mr-0.5">
+                            {category.emoji}
+                          </span>
                           <span className="text-xs">{category.name}</span>
                         </button>
                       ))
+                    ) : (
+                      <p className="text-gray-400 flex items-center justify-center h-full w-full text-center">
+                        No categories available
+                      </p>
                     )}
                   </div>
+
                   <FaChevronRight
                     onClick={() => this.scrollCarousel("right")}
                     className="text-gray-500 cursor-pointer ml-2 mr-4"
@@ -327,7 +352,7 @@ export default class AddTransaction extends Component {
                   {/* Add Category Button */}
                   <button
                     onClick={this.openAddCategory}
-                    className="w-1/4 bg-gray-200 text-gray-600 rounded-lg flex items-center justify-center p-2 hover:bg-gray-300 transition"
+                    className="px-6 bg-gray-200 text-gray-600 rounded-lg flex items-center justify-center p-2 hover:bg-gray-300 transition"
                   >
                     <FaPlus />
                   </button>
@@ -352,7 +377,7 @@ export default class AddTransaction extends Component {
                     type="datetime-local"
                     onChange={this.handleDateTimeChange}
                     onBlur={this.handleBlur}
-                    className="w-full h-10 p-2 rounded-md text-gray-900 placeholder-gray-400 focus:outline-none"
+                    className="w-full h-10 p-2 rounded-md text-gray-700 placeholder-gray-400 focus:outline-none"
                     value={this.formatDateTimeForInput(selectedDateTime)}
                     autoFocus
                   />
@@ -362,7 +387,7 @@ export default class AddTransaction extends Component {
                 {!isEditing && (
                   <button
                     onClick={this.toggleEditMode}
-                    className="flex items-center space-x-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+                    className="flex items-center space-x-2 px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
                   >
                     <FaCalendarAlt />
                   </button>
@@ -379,7 +404,18 @@ export default class AddTransaction extends Component {
 
         {showAddCategory && (
           <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
-            <AddCategory close={this.closeAddCategory} />
+            <div className="relative p-4 rounded shadow-lg">
+              {/* Close button placed absolutely within this container */}
+              <button
+                className="absolute -top-2 -right-2 text-gray-700 hover:text-gray-800"
+                onClick={this.closeAddCategory}
+              >
+                <FaTimes size={20} />
+              </button>
+
+              {/* AddCategory content */}
+              <AddCategory close={this.closeAddCategory} />
+            </div>
           </div>
         )}
       </div>
