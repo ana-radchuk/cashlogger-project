@@ -6,8 +6,6 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaTimes,
-  FaArrowCircleDown,
-  FaArrowCircleUp,
 } from "react-icons/fa";
 import AddCategory from "../category/AddCategory";
 
@@ -28,12 +26,26 @@ export default class AddTransaction extends Component {
       error: null,
       showAddCategory: false,
       isEditing: false,
+      openDialog: false,
     };
   }
 
   componentDidMount() {
     this.fetchCategories();
   }
+
+  validateInput = () => {
+    const value = this.nameRef.current.value;
+    this.setState({ showError: value.trim() == "" });
+  };
+
+  openDialog = () => {
+    this.setState({ dialogOpen: true });
+  };
+
+  closeDialog = () => {
+    this.setState({ dialogOpen: false });
+  };
 
   setTransactionType = (type) => {
     this.setState(
@@ -99,10 +111,6 @@ export default class AddTransaction extends Component {
   openAddCategory = (event) => {
     event.preventDefault();
     this.setState({ showAddCategory: true });
-  };
-
-  closeAddCategory = () => {
-    this.setState({ showAddCategory: false });
   };
 
   handleDateTimeChange = (e) => {
@@ -177,7 +185,9 @@ export default class AddTransaction extends Component {
 
   submitTransaction = (event) => {
     event.preventDefault();
+    this.validateInput();
 
+    if (this.nameRef.current.value.trim() !== "") {
     let transaction = {
       categoryId: parseInt(this.state.selectedCategory),
       name: this.nameRef.current.value,
@@ -200,6 +210,7 @@ export default class AddTransaction extends Component {
       .then(() => {
         window.location.reload();
       });
+    }
   };
 
   render() {
@@ -214,7 +225,7 @@ export default class AddTransaction extends Component {
     } = this.state;
 
     return (
-      <div className="relative flex justify-center items-center">
+      <div className="z-10 relative flex justify-center items-center">
         {/* Main form container */}
         <div
           className={`w-full max-w-md bg-white rounded shadow-lg p-6 ${
@@ -227,7 +238,6 @@ export default class AddTransaction extends Component {
           </h1>
 
           <form onSubmit={this.submitTransaction} className="space-y-2">
-            
             {/* Amount & Transaction Type */}
             <div className="flex space-x-4">
               <div className="w-2/3">
@@ -244,7 +254,7 @@ export default class AddTransaction extends Component {
                     step="0.01"
                     min="0"
                     ref={this.amountRef}
-                    className="w-full h-10 pl-8 pr-4 bg-gray-200 rounded-lg focus:outline-none focus:ring-0 focus:border-emerald-500 text-gray-700"
+                    className="w-full bg-opacity-70 h-10 pl-8 pr-4 bg-gray-200 rounded-lg focus:outline-none focus:ring-0 focus:border-emerald-500 text-gray-700"
                     placeholder="0.00"
                     onChange={this.handleAmountChange}
                   />
@@ -256,10 +266,9 @@ export default class AddTransaction extends Component {
                 <label className="block text-sm font-medium text-gray-700 ml-4">
                   Type
                 </label>
-                
+
                 {/* Income toggle button */}
                 <div className="flex h-12 border-gray-200 items-center justify-center gap-2">
-                  {/* <div className="flex items-center gap-1"> */}
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
@@ -293,9 +302,18 @@ export default class AddTransaction extends Component {
               <input
                 type="text"
                 ref={this.nameRef}
-                className="w-full px-4 bg-gray-200 rounded-lg h-10 focus:outline-none focus:ring-0 focus:border-emerald-500 text-gray-700"
+                className={`w-full px-4 bg-gray-200 bg-opacity-70 rounded-lg h-10 focus:outline-none focus:ring-0 focus:border-emerald-500 text-gray-700 ${
+                  this.state.showError ? "border-red-500" : ""
+                }`}
                 placeholder="Enter transaction"
               />
+
+              {/* Error message */}
+              {this.state.showError && (
+                <span className="text-red-500 text-xs">
+                  Transaction title is required.
+                </span>
+              )}
             </div>
 
             {/* Category Selection */}
@@ -382,7 +400,7 @@ export default class AddTransaction extends Component {
                     type="datetime-local"
                     onChange={this.handleDateTimeChange}
                     onBlur={this.handleBlur}
-                    className="w-full h-10 p-2 bg-gray-200 rounded-lg text-gray-500 placeholder-gray-400 focus:outline-none"
+                    className="w-full h-10 p-2 bg-gray-200 bg-opacity-70 rounded-lg text-gray-500 placeholder-gray-400 focus:outline-none"
                     value={this.formatDateTimeForInput(selectedDateTime)}
                     autoFocus
                   />

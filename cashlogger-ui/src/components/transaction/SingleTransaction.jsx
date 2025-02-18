@@ -11,7 +11,7 @@ const SingleTransaction = ({ transaction }) => {
   };
 
   const formatAmount = (amount) => {
-    if (!amount) return "$0.00";
+    if (!amount) return "0.00";
 
     return amount.toLocaleString("en-CA", {
       minimumFractionDigits: 2,
@@ -20,7 +20,7 @@ const SingleTransaction = ({ transaction }) => {
   };
 
   return (
-    <div className="flex justify-between items-start bg-white border-b border-gray-300 rounded shadow-md py-1 px-2 w-full">
+    <div className="flex justify-between items-start bg-white border-b border-gray-200 py-2 px-2 w-full">
       {/* Left Section: Transaction Information */}
 
       <div className="flex flex-col space-y-2 w-3/4">

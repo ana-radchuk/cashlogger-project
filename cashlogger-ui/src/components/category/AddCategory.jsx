@@ -26,6 +26,7 @@ export default class AddCategory extends Component {
       showSuccessNotification: false,
       showErrorNotification: false,
       notification: {},
+      dialogOpen: false, 
     };
   }
 
@@ -34,17 +35,24 @@ export default class AddCategory extends Component {
     this.fetchCategories();
   }
 
+  componentWillUnmount() {
+    document.addEventListener("click", this.handleClickOutside);
+  }
+
+  openDialog = () => {
+    this.setState({ dialogOpen: true });
+  };
+  
+  closeDialog = () => {
+    this.setState({ dialogOpen: false });
+  };
+
   handleClickOutside = (event) => {
     this.setState({
       showError: false,
       showSuccessNotification: false,
       showErrorNotification: false,
     });
-  };
-
-  validateInput = () => {
-    const value = this.nameRef.current.value;
-    this.setState({ showError: value.trim() == "" });
   };
 
   handleEmojiClick = (emoji) => {
@@ -126,6 +134,11 @@ export default class AddCategory extends Component {
     );
   };
 
+  validateInput = () => {
+    const value = this.nameRef.current.value;
+    this.setState({ showError: value.trim() == "" });
+  };
+
   submitCategory(event) {
     event.preventDefault();
     this.validateInput();
@@ -189,7 +202,7 @@ export default class AddCategory extends Component {
   }
 
   render() {
-    const { selectedCategory, categoryType, loading, error } = this.state;
+    const { selectedCategory, categoryType, loading, error, dialogOpen } = this.state;
 
     return (
       <div className="flex justify-center items-center">
@@ -211,11 +224,10 @@ export default class AddCategory extends Component {
                     <input
                       type="text"
                       ref={this.nameRef}
-                      className={`bg-gray-200 rounded-lg h-10 w-full px-4 focus:outline-none focus:ring-0 focus:border-violet-500 text-gray-700  ${
+                      className={`bg-gray-200 bg-opacity-70 rounded-lg h-10 w-full px-4 focus:outline-none focus:ring-0 focus:border-violet-500 text-gray-700  ${
                         this.state.showError ? "border-red-500" : ""
                       }`}
                       placeholder="Enter category"
-                      onBlur={this.validateInput}
                     />
 
                     {/* Button for Emoji Picker */}
@@ -234,7 +246,7 @@ export default class AddCategory extends Component {
 
                   {/* Error message */}
                   {this.state.showError && (
-                    <span className="text-red-500 text-xs">
+                    <span className="text-red-500 text-xs mt-1">
                       Category name is required.
                     </span>
                   )}
@@ -358,14 +370,14 @@ export default class AddCategory extends Component {
               </button>
 
               {this.state.showSuccessNotification && (
-                <div className="fixed top-4 right-4 border bg-white border-green-500 text-gray-700 py-2 px-4 rounded-lg shadow-md flex items-center space-x-2">
+                <div className="z-10 fixed top-4 right-4 border bg-white border-green-500 text-gray-700 py-2 px-4 rounded-lg shadow-md flex items-center space-x-2">
                   <FaCheckCircle className="text-green-500" size={20} />
                   <span>New category successfully added!</span>
                 </div>
               )}
 
               {this.state.showErrorNotification && (
-                <div className="fixed top-4 right-4 border bg-white border-red-500 text-gray-700 py-2 px-4 rounded-lg shadow-md flex items-center space-x-2">
+                <div className="z-10 fixed top-4 right-4 border bg-white border-red-500 text-gray-700 py-2 px-4 rounded-lg shadow-md flex items-center space-x-2">
                   <FaTimesCircle className="text-red-500" size={20} />
                   <span>{this.state.notification.message}</span>
                 </div>

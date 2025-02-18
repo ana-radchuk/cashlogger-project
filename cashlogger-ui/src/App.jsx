@@ -15,9 +15,9 @@ const App = () => {
       <div>
         <AddCategory />
       </div>
-      <div>
+      {/* <div>
         <CurrentBalance />
-      </div>
+      </div> */}
     </div>
 
     // <div className="flex flex-col h-screen p-4 space-y-4">
