@@ -20,7 +20,7 @@ const SingleTransaction = ({ transaction }) => {
   };
 
   return (
-    <div className="flex justify-between items-center bg-white border-b border-gray-300 rounded shadow-md py-1 px-2 w-full hover:shadow-lg transition-transform transform hover:scale-105">
+    <div className="flex justify-between items-start bg-white border-b border-gray-300 rounded shadow-md py-1 px-2 w-full">
       {/* Left Section: Transaction Information */}
 
       <div className="flex flex-col space-y-2 w-3/4">
@@ -58,11 +58,11 @@ const SingleTransaction = ({ transaction }) => {
       </div>
 
       {/* Right Section: Action Buttons */}
-      <div className="flex flex-col space-y-1 w-1/4 items-end">
+      <div className="flex flex-row space-x-1">
         {/* Edit Button */}
         <button
           onClick={() => editTransaction(transaction)}
-          className="bg-gray-200 text-gray-600 rounded-lg flex items-center justify-center p-1 hover:bg-gray-300 transition"
+          className=" text-gray-600 rounded-lg flex items-center justify-center p-1 hover:bg-gray-200 transition"
         >
           <FaEdit />
         </button>
@@ -70,7 +70,7 @@ const SingleTransaction = ({ transaction }) => {
         {/* Delete Button */}
         <button
           onClick={() => deleteTransaction(transaction.id)}
-          className="bg-gray-200 text-gray-600 rounded-lg flex items-center justify-center p-1 hover:bg-gray-300 transition"
+          className=" text-gray-600 rounded-lg flex items-center justify-center p-1 hover:bg-gray-200 transition"
         >
           <FaTimes />
         </button>

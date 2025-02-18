@@ -6,8 +6,6 @@ import {
   FaEdit,
   FaCheckCircle,
   FaTimesCircle,
-  FaArrowCircleDown,
-  FaArrowCircleUp
 } from "react-icons/fa";
 
 export default class AddCategory extends Component {
@@ -57,6 +55,7 @@ export default class AddCategory extends Component {
     event.stopPropagation();
     this.setState((prevState) => ({
       showEmojiPicker: !prevState.showEmojiPicker,
+      isHovered: false, // Reset hover state when opening the picker
     }));
   };
 
@@ -118,6 +117,15 @@ export default class AddCategory extends Component {
     }));
   };
 
+  handleToggle = () => {
+    const newCategoryType =
+      this.state.categoryType === "Expense" ? "Income" : "Expense";
+    this.setState(
+      { categoryType: newCategoryType },
+      this.filterCategories // Call this after setting the new type
+    );
+  };
+
   submitCategory(event) {
     event.preventDefault();
     this.validateInput();
@@ -125,7 +133,7 @@ export default class AddCategory extends Component {
     if (this.nameRef.current.value.trim() !== "") {
       let category = {
         name: this.nameRef.current.value,
-        emoji: this.state.selectedEmoji == '' ? '🚀' : this.state.selectedEmoji,
+        emoji: this.state.selectedEmoji == "" ? "🚀" : this.state.selectedEmoji,
         type: this.state.categoryType,
       };
 
@@ -142,7 +150,8 @@ export default class AddCategory extends Component {
               this.setState({
                 notification: {
                   type: "error",
-                  message: "Category with this name already exists. Please try again.",
+                  message:
+                    "Category with this name already exists. Please try again.",
                 },
               });
             } else {
@@ -152,7 +161,7 @@ export default class AddCategory extends Component {
                   message: "Error adding category. Please try again.",
                 },
               });
-            }   
+            }
           }
           return response.json();
         })
@@ -167,15 +176,14 @@ export default class AddCategory extends Component {
             this.setState({ showSuccessNotification: false });
             window.location.reload();
           }, 3000);
-
         })
         .catch(() => {
           this.setState({ showErrorNotification: true });
 
-            // Auto-hide error notification after 3 seconds
-            setTimeout(() => {
-              this.setState({ showErrorNotification: false });
-            }, 3000);
+          // Auto-hide error notification after 3 seconds
+          setTimeout(() => {
+            this.setState({ showErrorNotification: false });
+          }, 3000);
         });
     }
   }
@@ -190,20 +198,20 @@ export default class AddCategory extends Component {
             Category Management
           </h1>
 
-          <form onSubmit={this.submitCategory.bind(this)} className="space-y-6">
-            <div className="flex space-x-4">
+          <form onSubmit={this.submitCategory.bind(this)} className="space-y-2">
+            <div className="flex space-x-2">
               {/* Input with Emoji Button */}
-              <div className="w-1/2">
+              <div className="w-2/3">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Title & Emoji
                 </label>
 
                 <div className="flex flex-col">
-                  <div className="flex items-center">
+                  <div className="flex items-center h-10">
                     <input
                       type="text"
                       ref={this.nameRef}
-                      className={`w-full h-12 px-4 border-b shadow-sm focus:outline-none focus:ring-0 focus:border-violet-500 text-gray-700 ${
+                      className={`bg-gray-200 rounded-lg h-10 w-full px-4 focus:outline-none focus:ring-0 focus:border-violet-500 text-gray-700  ${
                         this.state.showError ? "border-red-500" : ""
                       }`}
                       placeholder="Enter category"
@@ -214,7 +222,11 @@ export default class AddCategory extends Component {
                     <button
                       type="button"
                       onClick={this.toggleEmojiPicker}
-                      className="flex-shrink-0 w-12 h-12 border-b border-l shadow-sm flex justify-center items-center hover:bg-gray-200"
+                      onMouseEnter={() => this.setState({ isHovered: true })}
+                      onMouseLeave={() => this.setState({ isHovered: false })}
+                      className={`flex-shrink-0 w-10 h-10 mr-2 ml-1 rounded-lg flex justify-center items-center 
+                        ${this.state.showEmojiPicker ? "bg-gray-300" : "bg-gray-200"} 
+                        ${!this.state.showEmojiPicker && this.state.isHovered ? "hover:bg-gray-300" : "" }`}
                     >
                       {this.state.selectedEmoji || "🚀"}
                     </button>
@@ -240,34 +252,34 @@ export default class AddCategory extends Component {
               </div>
 
               {/* Category Type buttons */}
-              <div className="w-1/2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+              <div className="w-1/3">
+                <label className="block text-sm font-medium text-gray-700 ml-4">
                   Type
                 </label>
 
-                <div className="flex p-1 h-12 border-b border-gray-300 shadow-sm gap-1">
-                  <button
-                    type="button"
-                    onClick={() => this.setCategoryType("Expense")}
-                    className={`flex-1 px-2 py-1 text-xs rounded-lg transition ${
-                      categoryType === "Expense"
-                        ? "bg-red-500 text-white"
-                        : "bg-gray-200 text-gray-600 hover:bg-gray-300 transition"
-                    }`}
-                  >
-                    <FaArrowCircleDown className="text-xs" /> Expense
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => this.setCategoryType("Income")}
-                    className={`flex-1 px-2 py-1 text-xs rounded-lg transition ${
+                {/* Income toggle button */}
+                <div className="flex h-12 border-gray-200 items-center justify-center gap-2">
+                  {/* <div className="flex items-center gap-1"> */}
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={categoryType === "Income"}
+                      onChange={this.handleToggle}
+                    />
+                    <div className="w-12 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:bg-emerald-500 peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                  </label>
+
+                  {/* Label for Income */}
+                  <span
+                    className={`text-xs font-semibold ${
                       categoryType === "Income"
-                        ? "bg-green-500 text-white"
-                        : "bg-gray-200 text-gray-600 hover:bg-gray-300 transition"
+                        ? "text-green-500"
+                        : "text-gray-500"
                     }`}
                   >
-                    <FaArrowCircleUp className="text-xs" /> Income
-                  </button>
+                    Income
+                  </span>
                 </div>
               </div>
             </div>
@@ -278,7 +290,7 @@ export default class AddCategory extends Component {
                 Existing categories
               </label>
 
-              <div className="flex space-x-4 border-b shadow-sm">
+              <div className="flex space-x-4">
                 {/* Category Carousel */}
                 <div className="w-full flex items-center rounded-lg p-2">
                   <FaChevronLeft
@@ -303,12 +315,14 @@ export default class AddCategory extends Component {
                           }}
                           className={`text-gray-600 rounded-lg px-2 py-1 text-xs font-medium transition
                             ${
-                            selectedCategory === category.id
-                              ? "bg-blue-500 text-white"
-                              : "bg-gray-200 text-gray-600 hover:bg-gray-300 transition"
-                          }`}
+                              selectedCategory === category.id
+                                ? "bg-violet-500 text-white"
+                                : "bg-gray-200 text-gray-600 hover:bg-gray-300 transition"
+                            }`}
                         >
-                          <span className="text-lg mr-0.5">{category.emoji}</span>
+                          <span className="text-lg mr-0.5">
+                            {category.emoji}
+                          </span>
                           <span className="text-xs">{category.name}</span>
                         </button>
                       ))

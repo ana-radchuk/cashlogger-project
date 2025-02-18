@@ -166,6 +166,15 @@ export default class AddTransaction extends Component {
     this.setState({ showAddCategory: false });
   };
 
+  handleToggle = () => {
+    const newTransactionType =
+      this.state.transactionType === "Expense" ? "Income" : "Expense";
+    this.setState(
+      { transactionType: newTransactionType },
+      this.filterCategories // Call this after setting the new type
+    );
+  };
+
   submitTransaction = (event) => {
     event.preventDefault();
 
@@ -217,11 +226,11 @@ export default class AddTransaction extends Component {
             Transaction Management
           </h1>
 
-          <form onSubmit={this.submitTransaction} className="space-y-6">
+          <form onSubmit={this.submitTransaction} className="space-y-2">
             
             {/* Amount & Transaction Type */}
             <div className="flex space-x-4">
-              <div className="w-1/2">
+              <div className="w-2/3">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Amount
                 </label>
@@ -235,7 +244,7 @@ export default class AddTransaction extends Component {
                     step="0.01"
                     min="0"
                     ref={this.amountRef}
-                    className="w-full h-12 pl-8 pr-4 border-b border-gray-300 shadow-sm focus:outline-none focus:ring-0 focus:border-emerald-500 text-gray-700"
+                    className="w-full h-10 pl-8 pr-4 bg-gray-200 rounded-lg focus:outline-none focus:ring-0 focus:border-emerald-500 text-gray-700"
                     placeholder="0.00"
                     onChange={this.handleAmountChange}
                   />
@@ -243,52 +252,48 @@ export default class AddTransaction extends Component {
               </div>
 
               {/* Type Section */}
-              <div className="w-1/2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+              <div className="w-1/3">
+                <label className="block text-sm font-medium text-gray-700 ml-4">
                   Type
                 </label>
                 
-                <div className="flex p-1 h-12 border-b border-gray-300 shadow-sm gap-1">
-                  
-                  <button
-                    type="button"
-                    onClick={() => this.setTransactionType("Expense")}
-                    className={`flex-1 px-1 py-0.5 text-xs rounded-lg transition ${
-                      transactionType === "Expense"
-                        ? "bg-red-500 text-white"
-                        : "bg-gray-200 text-gray-600 hover:bg-gray-300 transition"
-                    }`}
-                  >
-                    <FaArrowCircleDown className="text-xs" /> 
-                    <span className="text-xs">Expense</span>
-                  </button>
-                  
-                  <button
-                    type="button"
-                    onClick={() => this.setTransactionType("Income")}
-                    className={`flex-1 px-1 py-0.5 text-xs rounded-lg transition ${
-                      transactionType === "Income"
-                        ? "bg-green-500 text-white"
-                        : "bg-gray-200 text-gray-600 hover:bg-gray-300 transition"
-                    }`}
-                  >
-                    <FaArrowCircleUp className="text-xs" /> 
-                    <span className="text-xs">Income</span>
-                  </button>
+                {/* Income toggle button */}
+                <div className="flex h-12 border-gray-200 items-center justify-center gap-2">
+                  {/* <div className="flex items-center gap-1"> */}
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={transactionType === "Income"}
+                      onChange={this.handleToggle}
+                    />
+                    <div className="w-12 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:bg-emerald-500 peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                  </label>
 
+                  {/* Label for Income */}
+                  <span
+                    className={`text-xs font-semibold ${
+                      transactionType === "Income"
+                        ? "text-green-500"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    Income
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Title: Transaction Name */}
-            <div>
+            <div className="mr-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Title
               </label>
+
               <input
                 type="text"
                 ref={this.nameRef}
-                className="w-full h-12 px-4 border-b border-gray-300 shadow-sm focus:outline-none focus:ring-0 focus:border-emerald-500 text-gray-700"
+                className="w-full px-4 bg-gray-200 rounded-lg h-10 focus:outline-none focus:ring-0 focus:border-emerald-500 text-gray-700"
                 placeholder="Enter transaction"
               />
             </div>
@@ -300,7 +305,7 @@ export default class AddTransaction extends Component {
               </label>
 
               {/* Category Carousel */}
-              <div className="flex space-x-4 border-b shadow-sm">
+              <div className="flex space-x-4">
                 <div className="w-full flex items-center rounded-lg p-2">
                   <FaChevronLeft
                     onClick={() => this.scrollCarousel("left")}
@@ -326,7 +331,7 @@ export default class AddTransaction extends Component {
                           className={`text-gray-600 rounded-lg px-2 py-1 text-xs font-medium transition
                           ${
                             selectedCategory === category.id
-                              ? "bg-blue-500 text-white"
+                              ? "bg-emerald-500 text-white"
                               : "bg-gray-200 text-gray-600 hover:bg-gray-300 transition"
                           }
                           `}
@@ -362,14 +367,14 @@ export default class AddTransaction extends Component {
 
             {/* Date & Time Picker */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700">
                 Date & Time
               </label>
 
-              <div className="flex items-center justify-between p-2 border-b shadow-sm focus:outline-none focus:ring-0 focus:border-emerald-500">
+              <div className="flex items-center justify-between p-2 focus:outline-none focus:ring-0 focus:border-emerald-500">
                 {/* Display DateTime */}
                 {!isEditing ? (
-                  <span className="text-gray-700">
+                  <span className="text-gray-500">
                     {this.formatDateTime(selectedDateTime)}
                   </span>
                 ) : (
@@ -377,7 +382,7 @@ export default class AddTransaction extends Component {
                     type="datetime-local"
                     onChange={this.handleDateTimeChange}
                     onBlur={this.handleBlur}
-                    className="w-full h-10 p-2 rounded-md text-gray-700 placeholder-gray-400 focus:outline-none"
+                    className="w-full h-10 p-2 bg-gray-200 rounded-lg text-gray-500 placeholder-gray-400 focus:outline-none"
                     value={this.formatDateTimeForInput(selectedDateTime)}
                     autoFocus
                   />
