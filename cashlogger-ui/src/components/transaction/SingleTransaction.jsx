@@ -7,7 +7,18 @@ const SingleTransaction = ({ transaction }) => {
   };
 
   const deleteTransaction = (id) => {
-    // Delete transaction logic
+    fetch(`http://localhost:8080/api/v1/transactions/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((response) => {
+      if (response.ok) {
+        console.log(response.json());
+      }
+      return response.json();
+    });
+    window.location.reload();
   };
 
   const formatAmount = (amount) => {
@@ -26,7 +37,10 @@ const SingleTransaction = ({ transaction }) => {
       <div className="flex flex-col space-y-2 w-3/4">
         <div className="flex items-center space-x-2">
           {/* Category Button */}
-          <button disabled className="bg-gray-200 text-gray-600 rounded-lg px-2 py-1 text-xs font-medium transition">
+          <button
+            disabled
+            className="bg-gray-200 text-gray-600 rounded-lg px-2 py-1 text-xs font-medium transition"
+          >
             <span className="mr-0.5">{transaction.category.emoji}</span>
             <span>{transaction.category.name}</span>
           </button>
@@ -36,7 +50,6 @@ const SingleTransaction = ({ transaction }) => {
         </div>
 
         {/* Date & Time and Amount */}
-
         <div className="flex justify-between text-xs text-gray-500">
           {/* Date & Time */}
           <p className="ml-1">
