@@ -20,13 +20,13 @@ const SingleTransaction = ({ transaction }) => {
   };
 
   return (
-    <div className="flex justify-between items-center bg-white border border-gray-300 rounded-lg shadow-md p-4 w-full hover:shadow-lg transition-transform transform hover:scale-105">
+    <div className="flex justify-between items-center bg-white border-b border-gray-300 rounded shadow-md py-1 px-2 w-full hover:shadow-lg transition-transform transform hover:scale-105">
       {/* Left Section: Transaction Information */}
 
       <div className="flex flex-col space-y-2 w-3/4">
         <div className="flex items-center space-x-2">
           {/* Category Button */}
-          <button className="bg-gray-200 text-gray-600 rounded-lg px-2 py-1 text-xs font-medium hover:bg-gray-300 transition">
+          <button disabled className="bg-gray-200 text-gray-600 rounded-lg px-2 py-1 text-xs font-medium transition">
             <span className="mr-0.5">{transaction.category.emoji}</span>
             <span>{transaction.category.name}</span>
           </button>
@@ -39,7 +39,7 @@ const SingleTransaction = ({ transaction }) => {
 
         <div className="flex justify-between text-xs text-gray-500">
           {/* Date & Time */}
-          <p>
+          <p className="ml-1">
             {new Date(transaction.createdAt).toLocaleString("en-CA", {
               year: "numeric",
               month: "short",
@@ -58,11 +58,11 @@ const SingleTransaction = ({ transaction }) => {
       </div>
 
       {/* Right Section: Action Buttons */}
-      <div className="flex flex-col space-y-2 w-1/4 items-end">
+      <div className="flex flex-col space-y-1 w-1/4 items-end">
         {/* Edit Button */}
         <button
           onClick={() => editTransaction(transaction)}
-          className="bg-gray-200 text-gray-600 rounded-lg flex items-center justify-center p-2 hover:bg-gray-300 transition"
+          className="bg-gray-200 text-gray-600 rounded-lg flex items-center justify-center p-1 hover:bg-gray-300 transition"
         >
           <FaEdit />
         </button>
@@ -70,7 +70,7 @@ const SingleTransaction = ({ transaction }) => {
         {/* Delete Button */}
         <button
           onClick={() => deleteTransaction(transaction.id)}
-          className="bg-gray-200 text-gray-600 rounded-lg flex items-center justify-center p-2 hover:bg-gray-300 transition"
+          className="bg-gray-200 text-gray-600 rounded-lg flex items-center justify-center p-1 hover:bg-gray-300 transition"
         >
           <FaTimes />
         </button>

@@ -293,8 +293,8 @@ export default class AddCategory extends Component {
                       <span className="text-gray-500">Loading...</span>
                     ) : error ? (
                       <span className="text-red-500">{error}</span>
-                    ) : (
-                      (this.state.filteredCategories || []).map((category) => (
+                    ) : this.state.filteredCategories.length > 0 ? (
+                      this.state.filteredCategories.map((category) => (
                         <button
                           key={category.id}
                           onClick={(e) => {
@@ -304,7 +304,7 @@ export default class AddCategory extends Component {
                           className={`text-gray-600 rounded-lg px-2 py-1 text-xs font-medium transition
                             ${
                             selectedCategory === category.id
-                              ? "bg-blue-500 text-gray-200"
+                              ? "bg-blue-500 text-white"
                               : "bg-gray-200 text-gray-600 hover:bg-gray-300 transition"
                           }`}
                         >
@@ -312,6 +312,10 @@ export default class AddCategory extends Component {
                           <span className="text-xs">{category.name}</span>
                         </button>
                       ))
+                    ) : (
+                      <p className="text-gray-400 flex items-center justify-center h-full w-full text-center">
+                        No categories available
+                      </p>
                     )}
                   </div>
                   <FaChevronRight
