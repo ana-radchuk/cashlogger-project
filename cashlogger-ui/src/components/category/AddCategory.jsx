@@ -34,7 +34,7 @@ export default class AddCategory extends Component {
   }
 
   componentWillUnmount() {
-    document.addEventListener("click", this.handleClickOutside);
+    document.removeEventListener("click", this.handleClickOutside);
   }
 
   fetchCategories = async () => {
@@ -58,14 +58,14 @@ export default class AddCategory extends Component {
   submitCategory(event) {
     event.preventDefault();
     this.validateInput();
-
+  
     if (this.nameRef.current.value.trim() !== "") {
       let category = {
         name: this.nameRef.current.value,
-        emoji: this.state.selectedEmoji == "" ? "🚀" : this.state.selectedEmoji,
+        emoji: this.state.selectedEmoji === "" ? "🚀" : this.state.selectedEmoji,
         type: this.state.categoryType,
       };
-
+  
       fetch("http://localhost:8080/api/v1/categories", {
         method: "POST",
         headers: {
@@ -91,29 +91,33 @@ export default class AddCategory extends Component {
                 },
               });
             }
+            throw new Error("Failed to add category");
           }
           return response.json();
         })
-        .then(() => {
-          this.setState({
-            showSuccessNotification: true,
-            showErrorNotification: false,
-          });
-
+        .then((newCategory) => {
+          this.setState(
+            (prevState) => ({
+              categories: [...prevState.categories, newCategory],
+              showSuccessNotification: true,
+              showErrorNotification: false,
+            }),
+            this.filterCategories
+          );
+  
           setTimeout(() => {
             this.setState({ showSuccessNotification: false });
-            window.location.reload();
           }, 3000);
         })
         .catch(() => {
           this.setState({ showErrorNotification: true });
-
+  
           setTimeout(() => {
             this.setState({ showErrorNotification: false });
           }, 3000);
         });
     }
-  }
+  }  
   
   handleClickOutside = (event) => {
     this.setState({
