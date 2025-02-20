@@ -43,6 +43,27 @@ public class TransactionController {
         return transactionService.saveTransaction(transactionRequest, categoryId);
     }
 
+    @PutMapping("/{id}")
+    @Operation(
+            summary = "Update transaction",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Transaction updated",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Transaction.class)
+                            )
+                    )
+            }
+    )
+    public Transaction updateTransaction(
+            @PathVariable("id") Long id,
+            @RequestParam(required = true) Long categoryId,
+            @RequestBody TransactionRequest transactionRequest) {
+        return transactionService.updateTransaction(id, categoryId, transactionRequest);
+    }
+
     @GetMapping
     @Operation(
             summary = "Get all transactions",

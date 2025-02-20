@@ -26,6 +26,20 @@ public class TransactionService {
 
         Category category = categoryService.getCategoryById(categoryId);
         transaction.setCategory(category);
+
+        return transactionRepository.save(transaction);
+    }
+
+    public Transaction updateTransaction(Long id, Long categoryId, TransactionRequest transactionRequest) {
+        Transaction transaction = getTransactionById(id);
+        transaction.setName(transactionRequest.getName());
+        transaction.setAmount(transactionRequest.getAmount());
+        transaction.setTransactionType(Type.convertToType(transactionRequest.getType()));
+        transaction.setCreatedAt(OffsetDateTime.parse(transactionRequest.getCreatedAt()));
+
+        Category category = categoryService.getCategoryById(categoryId);
+        transaction.setCategory(category);
+
         return transactionRepository.save(transaction);
     }
 

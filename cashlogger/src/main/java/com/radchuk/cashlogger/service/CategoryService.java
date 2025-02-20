@@ -33,6 +33,15 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
+    public Category updateCategory(Long id, CategoryRequest categoryRequest) {
+        Category category = getCategoryById(id);
+        category.setName(categoryRequest.getName());
+        category.setCategoryType(Type.convertToType(categoryRequest.getType()));
+        category.setEmoji(categoryRequest.getEmoji());
+
+        return categoryRepository.save(category);
+    }
+
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
     }

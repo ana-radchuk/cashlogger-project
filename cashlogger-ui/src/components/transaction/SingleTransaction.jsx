@@ -1,9 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaEdit, FaTimes } from "react-icons/fa";
+import AddTransaction from "./AddTransaction";
 
 const SingleTransaction = ({ transaction }) => {
+  const [showEditTransaction, setShowEditTransaction] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+
   const editTransaction = (transaction) => {
-    // Edit transaction logic
+    setSelectedTransaction(transaction);
+    setShowEditTransaction(true);
   };
 
   const deleteTransaction = (id) => {
@@ -14,11 +19,16 @@ const SingleTransaction = ({ transaction }) => {
       },
     }).then((response) => {
       if (response.ok) {
-        console.log(response.json());
+        // TBD
       }
       return response.json();
     });
     window.location.reload();
+  };
+
+  const closeEditTransaction = () => {
+    setShowEditTransaction(false);
+    setSelectedTransaction(null);
   };
 
   const formatAmount = (amount) => {
@@ -88,6 +98,23 @@ const SingleTransaction = ({ transaction }) => {
           <FaTimes />
         </button>
       </div>
+
+      {showEditTransaction && (
+        <div className="z-10 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
+          <div className="relative p-4 rounded shadow-lg">
+            <button
+              className="absolute -top-2 -right-2 text-gray-700 hover:text-gray-800"
+              onClick={closeEditTransaction}
+            >
+              <FaTimes size={20} />
+            </button>
+            <AddTransaction
+              transaction={selectedTransaction}
+              close={closeEditTransaction}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -12,7 +12,6 @@ export default class AddCategory extends Component {
   constructor(props) {
     super(props);
     this.nameRef = createRef();
-    this.emojiPickerRef = createRef();
     this.carouselRef = createRef();
     this.state = {
       showEmojiPicker: false,
@@ -26,7 +25,6 @@ export default class AddCategory extends Component {
       showSuccessNotification: false,
       showErrorNotification: false,
       notification: {},
-      dialogOpen: false, 
     };
   }
 
@@ -38,39 +36,6 @@ export default class AddCategory extends Component {
   componentWillUnmount() {
     document.addEventListener("click", this.handleClickOutside);
   }
-
-  openDialog = () => {
-    this.setState({ dialogOpen: true });
-  };
-  
-  closeDialog = () => {
-    this.setState({ dialogOpen: false });
-  };
-
-  handleClickOutside = (event) => {
-    this.setState({
-      showError: false,
-      showSuccessNotification: false,
-      showErrorNotification: false,
-    });
-  };
-
-  handleEmojiClick = (emoji) => {
-    this.setState({ selectedEmoji: emoji.emoji, showEmojiPicker: false });
-  };
-
-  toggleEmojiPicker = (event) => {
-    event.stopPropagation();
-    this.setState((prevState) => ({
-      showEmojiPicker: !prevState.showEmojiPicker,
-      isHovered: false, // Reset hover state when opening the picker
-    }));
-  };
-
-  openEditCategory = (event) => {
-    event.preventDefault();
-    this.setState({ showEditCategory: true });
-  };
 
   fetchCategories = async () => {
     try {
@@ -88,55 +53,6 @@ export default class AddCategory extends Component {
     } catch (error) {
       this.setState({ error: error.message, loading: false });
     }
-  };
-
-  setCategoryType = (type) => {
-    this.setState(
-      {
-        categoryType: type,
-      },
-      this.filterCategories
-    );
-  };
-
-  filterCategories = () => {
-    const { categories, categoryType } = this.state;
-    const filteredCategories = categories.filter(
-      (category) => category.categoryType === categoryType.toUpperCase()
-    );
-    this.setState({
-      filteredCategories,
-    });
-  };
-
-  scrollCarousel = (direction) => {
-    if (this.carouselRef.current) {
-      this.carouselRef.current.scrollBy({
-        left: direction === "left" ? -100 : 100,
-        behavior: "smooth",
-      });
-    }
-  };
-
-  setCategory = (categoryId) => {
-    this.setState((prevState) => ({
-      selectedCategory:
-        prevState.selectedCategory === categoryId ? null : categoryId,
-    }));
-  };
-
-  handleToggle = () => {
-    const newCategoryType =
-      this.state.categoryType === "Expense" ? "Income" : "Expense";
-    this.setState(
-      { categoryType: newCategoryType },
-      this.filterCategories // Call this after setting the new type
-    );
-  };
-
-  validateInput = () => {
-    const value = this.nameRef.current.value;
-    this.setState({ showError: value.trim() == "" });
   };
 
   submitCategory(event) {
@@ -184,7 +100,6 @@ export default class AddCategory extends Component {
             showErrorNotification: false,
           });
 
-          // Auto-hide success notification after 3 seconds
           setTimeout(() => {
             this.setState({ showSuccessNotification: false });
             window.location.reload();
@@ -193,16 +108,80 @@ export default class AddCategory extends Component {
         .catch(() => {
           this.setState({ showErrorNotification: true });
 
-          // Auto-hide error notification after 3 seconds
           setTimeout(() => {
             this.setState({ showErrorNotification: false });
           }, 3000);
         });
     }
   }
+  
+  handleClickOutside = (event) => {
+    this.setState({
+      showError: false,
+      showSuccessNotification: false,
+      showErrorNotification: false,
+    });
+  };
+
+  handleEmojiClick = (emoji) => {
+    this.setState({ selectedEmoji: emoji.emoji, showEmojiPicker: false });
+  };
+
+  toggleEmojiPicker = (event) => {
+    event.stopPropagation();
+    this.setState((prevState) => ({
+      showEmojiPicker: !prevState.showEmojiPicker,
+      isHovered: false, // Reset hover state when opening the picker
+    }));
+  };
+
+  openEditCategory = (event) => {
+    event.preventDefault();
+    this.setState({ showEditCategory: true });
+  };
+
+  filterCategories = () => {
+    const { categories, categoryType } = this.state;
+    const filteredCategories = categories.filter(
+      (category) => category.categoryType === categoryType.toUpperCase()
+    );
+    this.setState({
+      filteredCategories,
+    });
+  };
+
+  scrollCarousel = (direction) => {
+    if (this.carouselRef.current) {
+      this.carouselRef.current.scrollBy({
+        left: direction === "left" ? -100 : 100,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  setCategory = (categoryId) => {
+    this.setState((prevState) => ({
+      selectedCategory:
+        prevState.selectedCategory === categoryId ? null : categoryId,
+    }));
+  };
+
+  handleToggle = () => {
+    const newCategoryType =
+      this.state.categoryType === "Expense" ? "Income" : "Expense";
+    this.setState(
+      { categoryType: newCategoryType },
+      this.filterCategories
+    );
+  };
+
+  validateInput = () => {
+    const value = this.nameRef.current.value;
+    this.setState({ showError: value.trim() == "" });
+  };
 
   render() {
-    const { selectedCategory, categoryType, loading, error, dialogOpen } = this.state;
+    const { selectedCategory, categoryType, loading, error } = this.state;
 
     return (
       <div className="flex justify-center items-center">
@@ -255,7 +234,6 @@ export default class AddCategory extends Component {
                 {/* Emoji Picker */}
                 {this.state.showEmojiPicker && (
                   <div
-                    ref={this.emojiPickerRef}
                     className="absolute z-10 mt-2 bg-white"
                   >
                     <EmojiPicker onEmojiClick={this.handleEmojiClick} />

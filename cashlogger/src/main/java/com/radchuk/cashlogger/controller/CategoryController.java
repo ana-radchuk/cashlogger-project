@@ -53,6 +53,27 @@ public class CategoryController {
         }
     }
 
+    @PutMapping("/{id}")
+    @Operation(
+            summary = "Update category",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Category updated",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Category.class)
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<Category> updateCategory(
+            @PathVariable("id") Long id,
+            @RequestBody CategoryRequest categoryRequest) {
+            Category createdCategory = categoryService.updateCategory(id, categoryRequest);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
+    }
+
     @GetMapping
     @Operation(
             summary = "Get all categories",

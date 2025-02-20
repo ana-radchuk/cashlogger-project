@@ -12,13 +12,13 @@ import AddCategory from "../category/AddCategory";
 export default class AddTransaction extends Component {
   constructor(props) {
     super(props);
-    this.nameRef = createRef();
-    this.amountRef = createRef();
-    this.dateRef = createRef();
+    this.transaction = props.transaction;
     this.carouselRef = createRef();
     this.state = {
-      transactionType: "Expense",
-      selectedDateTime: new Date(),
+      name: this.transaction ? this.transaction.name : "",
+      amount: this.transaction ? this.formatAmount(this.transaction.amount) : "",
+      transactionType: this.transaction ? this.transaction.transactionType : "EXPENSE",
+      selectedDateTime: this.transaction ? new Date(this.transaction.createdAt) : new Date(),
       categories: [],
       filteredCategories: [],
       selectedCategory: null,
@@ -26,47 +26,11 @@ export default class AddTransaction extends Component {
       error: null,
       showAddCategory: false,
       isEditing: false,
-      openDialog: false,
     };
   }
 
   componentDidMount() {
     this.fetchCategories();
-  }
-
-  validateInput = () => {
-    const value = this.nameRef.current.value;
-    this.setState({ showError: value.trim() == "" });
-  };
-
-  openDialog = () => {
-    this.setState({ dialogOpen: true });
-  };
-
-  closeDialog = () => {
-    this.setState({ dialogOpen: false });
-  };
-
-  setTransactionType = (type) => {
-    this.setState(
-      {
-        transactionType: type,
-      },
-      this.filterCategories
-    );
-  };
-
-  filterCategories = () => {
-    const { categories, transactionType } = this.state;
-    const filteredCategories = categories.filter(
-      (category) => category.categoryType === transactionType.toUpperCase()
-    );
-
-    this.setState({
-      filteredCategories,
-      selectedCategory:
-        filteredCategories.length > 0 ? filteredCategories[0].id : null,
-    });
   };
 
   fetchCategories = async () => {
@@ -75,6 +39,7 @@ export default class AddTransaction extends Component {
       if (!response.ok)
         throw new Error(`HTTP Error! Status: ${response.status}`);
       const data = await response.json();
+
       this.setState(
         {
           categories: data,
@@ -88,11 +53,92 @@ export default class AddTransaction extends Component {
     }
   };
 
-  handleDateTimeChange = (event) => {
+  submitTransaction = (event) => {
+    event.preventDefault();
+    this.validateInput();
+
+    if (this.state.name.trim() !== "") {
+    let transaction = {
+      categoryId: parseInt(this.state.selectedCategory),
+      name: this.state.name,
+      amount: parseFloat(this.state.amount),
+      type: this.state.transactionType,
+      createdAt: this.state.selectedDateTime.toISOString(),
+    };
+
+    if (this.transaction) {
+      fetch(`http://localhost:8080/api/v1/transactions/${this.transaction.id}?categoryId=${transaction.categoryId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(transaction),
+      })
+      .then((response) => response.json())
+        .then(() => {
+          window.location.reload();
+        });
+    } else {
+      fetch(
+        `http://localhost:8080/api/v1/transactions?categoryId=${transaction.categoryId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(transaction),
+        }
+      )
+        .then((response) => response.json())
+        .then(() => {
+          window.location.reload();
+        });
+      }
+    }
+  };
+
+  validateInput = () => {
+    const value = this.state.name;
+    this.setState({ showError: value.trim() == "" });
+  };
+
+  openAddCategory = (event) => {
+    event.preventDefault();
+    this.setState({ showAddCategory: true });
+  };
+
+  closeAddCategory = () => {
+    this.setState({ showAddCategory: false });
+  };
+
+  filterCategories = () => {
+    const { categories, transactionType } = this.state;
+    const filteredCategories = categories.filter(
+      (category) => category.categoryType === transactionType.toUpperCase()
+    );
+
+    let idx = 0;
+    if (this.transaction) { 
+      for (let i = 0; i < filteredCategories.length; i++) {
+        if (filteredCategories[i].id === this.transaction.category.id) {
+          idx = i;
+          break;
+        }
+      }
+    }
+
     this.setState({
-      selectedDateTime: new Date(event.target.value),
-      isEditing: false,
+      filteredCategories,
+      selectedCategory:
+        this.transaction ? filteredCategories[idx].id : filteredCategories.length > 0 ? filteredCategories[0].id : null,
     });
+  };
+
+  handleDateTimeChange = (e) => {
+    const newDate = new Date(e.target.value);
+    if (!isNaN(newDate.getTime())) {
+      this.setState({ 
+        selectedDateTime: newDate, 
+      });
+    }
   };
 
   toggleEditMode = (event) => {
@@ -106,18 +152,6 @@ export default class AddTransaction extends Component {
 
   setCategory = (categoryId) => {
     this.setState({ selectedCategory: categoryId });
-  };
-
-  openAddCategory = (event) => {
-    event.preventDefault();
-    this.setState({ showAddCategory: true });
-  };
-
-  handleDateTimeChange = (e) => {
-    const newDate = new Date(e.target.value);
-    if (!isNaN(newDate.getTime())) {
-      this.setState({ selectedDateTime: newDate });
-    }
   };
 
   formatDateTime = (date) => {
@@ -140,16 +174,21 @@ export default class AddTransaction extends Component {
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
+  formatAmount = (amount) => {
+    if (!amount.toString().includes(".")){
+      return amount + ".00";
+    }
+    return amount;
+  };
+
   handleAmountChange = (e) => {
     let value = e.target.value;
 
-    // Allow only digits and one dot
     const regex = /^[0-9]*\.?[0-9]*$/;
     if (!regex.test(value)) {
-      return; // Exit if the input contains invalid characters
+      return;
     }
 
-    // Allow only two decimal places
     if (value.includes(".")) {
       const [integerPart, decimalPart] = value.split(".");
       if (decimalPart.length > 2) {
@@ -157,8 +196,7 @@ export default class AddTransaction extends Component {
       }
     }
 
-    // Update the input field
-    e.target.value = value;
+    this.setState({ amount: value });
   };
 
   scrollCarousel = (direction) => {
@@ -170,51 +208,23 @@ export default class AddTransaction extends Component {
     }
   };
 
-  closeAddCategory = () => {
-    this.setState({ showAddCategory: false });
-  };
-
   handleToggle = () => {
     const newTransactionType =
-      this.state.transactionType === "Expense" ? "Income" : "Expense";
+      this.state.transactionType.toUpperCase() === "EXPENSE" ? "INCOME" : "EXPENSE";
     this.setState(
       { transactionType: newTransactionType },
-      this.filterCategories // Call this after setting the new type
+      this.filterCategories
     );
   };
 
-  submitTransaction = (event) => {
-    event.preventDefault();
-    this.validateInput();
-
-    if (this.nameRef.current.value.trim() !== "") {
-    let transaction = {
-      categoryId: parseInt(this.state.selectedCategory),
-      name: this.nameRef.current.value,
-      amount: parseFloat(this.amountRef.current.value),
-      type: this.state.transactionType,
-      createdAt: this.state.selectedDateTime.toISOString(),
-    };
-
-    console.log(transaction);
-
-    fetch(
-      `http://localhost:8080/api/v1/transactions?categoryId=${transaction.categoryId}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(transaction),
-      }
-    )
-      .then((response) => response.json())
-      .then(() => {
-        window.location.reload();
-      });
-    }
+  handleNameChange = (e) => {
+    this.setState({ name: e.target.value });
   };
 
   render() {
     const {
+      amount,
+      name,
       transactionType,
       selectedCategory,
       loading,
@@ -225,7 +235,7 @@ export default class AddTransaction extends Component {
     } = this.state;
 
     return (
-      <div className="z-10 relative flex justify-center items-center">
+      <div className="relative flex justify-center items-center">
         {/* Main form container */}
         <div
           className={`w-full max-w-md bg-white rounded shadow-lg p-6 ${
@@ -253,10 +263,10 @@ export default class AddTransaction extends Component {
                     type="number"
                     step="0.01"
                     min="0"
-                    ref={this.amountRef}
                     className="w-full bg-opacity-70 h-10 pl-8 pr-4 bg-gray-200 rounded-lg focus:outline-none focus:ring-0 focus:border-emerald-500 text-gray-700"
                     placeholder="0.00"
                     onChange={this.handleAmountChange}
+                    value={amount}
                   />
                 </div>
               </div>
@@ -273,7 +283,7 @@ export default class AddTransaction extends Component {
                     <input
                       type="checkbox"
                       className="sr-only peer"
-                      checked={transactionType === "Income"}
+                      checked={transactionType === "INCOME"}
                       onChange={this.handleToggle}
                     />
                     <div className="w-12 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:bg-emerald-500 peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
@@ -282,7 +292,7 @@ export default class AddTransaction extends Component {
                   {/* Label for Income */}
                   <span
                     className={`text-xs font-semibold ${
-                      transactionType === "Income"
+                      transactionType === "INCOME"
                         ? "text-green-500"
                         : "text-gray-500"
                     }`}
@@ -301,11 +311,12 @@ export default class AddTransaction extends Component {
 
               <input
                 type="text"
-                ref={this.nameRef}
                 className={`w-full px-4 bg-gray-200 bg-opacity-70 rounded-lg h-10 focus:outline-none focus:ring-0 focus:border-emerald-500 text-gray-700 ${
                   this.state.showError ? "border-red-500" : ""
                 }`}
                 placeholder="Enter transaction"
+                onChange={this.handleNameChange}
+                value={name}
               />
 
               {/* Error message */}
@@ -420,13 +431,13 @@ export default class AddTransaction extends Component {
 
             {/* Submit Button */}
             <button className="w-full bg-emerald-500 text-white py-3 rounded-lg shadow-md hover:bg-emerald-600 transition">
-              Add Transaction
+              {this.transaction != null ? "Update Transaction" : "Add Transaction"}
             </button>
           </form>
         </div>
 
         {showAddCategory && (
-          <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
+          <div className="z-10 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
             <div className="relative p-4 rounded shadow-lg">
               {/* Close button placed absolutely within this container */}
               <button
