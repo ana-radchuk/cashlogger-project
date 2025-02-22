@@ -160,8 +160,7 @@ export default class AddTransaction extends Component {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(transaction),
-          }
-        )
+          })
           .then((response) => {
             if (!response.ok) {
               this.setState({

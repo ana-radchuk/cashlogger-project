@@ -4,7 +4,7 @@ import EmojiPicker from "emoji-picker-react";
 import {
   FaChevronLeft,
   FaChevronRight,
-  FaEdit,
+  FaTimes,
   FaCheckCircle,
   FaTimesCircle,
 } from "react-icons/fa";
@@ -13,11 +13,12 @@ export default class AddCategory extends Component {
   static contextType = DataContext;
   constructor(props) {
     super(props);
+    this.category = props.category;
     this.carouselRef = createRef();
     this.state = {
       name: this.selectedCategory ? this.selectedCategory.name : "",
       showEmojiPicker: false,
-      selectedEmoji: "",
+      selectedEmoji: this.selectedCategory ? this.selectedCategory.emoji : "🚀",
       categoryType: "Expense",
       loading: true,
       categories: [],
@@ -106,8 +107,7 @@ export default class AddCategory extends Component {
                 this.setState({
                   notification: {
                     type: "error",
-                    message:
-                      "Category with this name already exists. Please try again.",
+                    message: "Category already exists. Please try again.",
                   },
                 });
               } else {
@@ -128,14 +128,15 @@ export default class AddCategory extends Component {
               showErrorNotification: false,
               notification: {
                 type: "success",
-                message:
-                  "Category successfully updated.",
+                message: "Category successfully updated.",
               },
             });
-  
+
             setTimeout(() => {
               this.setState({ showSuccessNotification: false });
             }, 3000);
+
+            this.resetForm();
           })
           .catch(() => {
             this.setState({ showErrorNotification: true });
@@ -158,8 +159,7 @@ export default class AddCategory extends Component {
                 this.setState({
                   notification: {
                     type: "error",
-                    message:
-                      "Category with this name already exists. Please try again.",
+                    message: "Category already exists. Please try again.",
                   },
                 });
               } else {
@@ -189,6 +189,7 @@ export default class AddCategory extends Component {
               }),
               this.filterCategories
             );
+            this.resetForm();
 
             setTimeout(() => {
               this.setState({ showSuccessNotification: false });
@@ -204,6 +205,33 @@ export default class AddCategory extends Component {
       }
     }
   }
+
+  deleteCategory = (id) => {
+    event.preventDefault();
+    fetch(`http://localhost:8080/api/v1/categories/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((response) => {
+      if (response.ok) {
+        // TBD
+      }
+      this.context.setData(response);
+      return response.text();
+    });
+
+    this.resetForm();
+  };
+
+  resetForm = () => {
+    this.setState({
+      name: "",
+      selectedEmoji: "🚀",
+      categoryType: "Expense",
+      selectedCategory: null,
+    });
+  };
 
   handleClickOutside = (event) => {
     this.setState({
@@ -249,7 +277,8 @@ export default class AddCategory extends Component {
       const isDeselecting = prevState.selectedCategory?.id === category.id;
       return {
         selectedCategory: isDeselecting ? null : category,
-        name: isDeselecting ? "" : category.name, // Clear name when deselecting
+        name: isDeselecting ? "" : category.name,
+        selectedEmoji: isDeselecting ? "🚀" : category.emoji,
       };
     });
   };
@@ -396,15 +425,19 @@ export default class AddCategory extends Component {
                         <button
                           key={category.id}
                           onClick={(e) => {
+                            if (this.category) return;
                             e.preventDefault();
                             this.setCategory(category);
                           }}
+                          disabled={this.category}
                           className={`text-gray-600 rounded-lg px-2 py-1 text-xs font-medium transition
-                            ${
-                              selectedCategory === category
-                                ? "bg-violet-500 text-white"
-                                : "bg-gray-200 text-gray-600 hover:bg-gray-300 transition"
-                            }`}
+                              ${
+                                selectedCategory === category
+                                  ? "bg-violet-500 text-white"
+                                  : this.category
+                                  ? "bg-gray-200 text-gray-600"
+                                  : "bg-gray-200 text-gray-600 hover:bg-gray-300 transition"
+                              }`}
                         >
                           <span className="text-lg mr-0.5">
                             {category.emoji}
@@ -422,6 +455,19 @@ export default class AddCategory extends Component {
                     onClick={() => this.scrollCarousel("right")}
                     className="text-gray-500 cursor-pointer ml-2 mr-4"
                   />
+
+                  {!this.category &&
+                    this.state.selectedCategory &&
+                    this.state.filteredCategories.length > 0 && (
+                      <button
+                        onClick={() =>
+                          this.deleteCategory(this.state.selectedCategory.id)
+                        }
+                        className="px-6 bg-gray-200 text-gray-600 rounded-lg flex items-center justify-center p-2 hover:bg-gray-300 transition"
+                      >
+                        <FaTimes />
+                      </button>
+                    )}
                 </div>
               </div>
             </div>
