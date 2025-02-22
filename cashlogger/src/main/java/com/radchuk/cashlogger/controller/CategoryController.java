@@ -64,14 +64,22 @@ public class CategoryController {
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = Category.class)
                             )
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Category already exists"
                     )
             }
     )
     public ResponseEntity<Category> updateCategory(
             @PathVariable("id") Long id,
             @RequestBody CategoryRequest categoryRequest) {
+        try {
             Category createdCategory = categoryService.updateCategory(id, categoryRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
+        } catch (ItemAlreadyExistsException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
     }
 
     @GetMapping

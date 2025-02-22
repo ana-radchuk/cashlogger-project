@@ -34,6 +34,12 @@ public class CategoryService {
     }
 
     public Category updateCategory(Long id, CategoryRequest categoryRequest) {
+        Optional<Category> existingCategory =
+                categoryRepository.findByName(categoryRequest.getName());
+        if (existingCategory.isPresent()) {
+            throw new ItemAlreadyExistsException("Category with this name already exists.");
+        }
+
         Category category = getCategoryById(id);
         category.setName(categoryRequest.getName());
         category.setCategoryType(Type.convertToType(categoryRequest.getType()));

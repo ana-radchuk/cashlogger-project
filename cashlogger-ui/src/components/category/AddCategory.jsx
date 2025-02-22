@@ -1,4 +1,5 @@
 import React, { Component, createRef } from "react";
+import { DataContext } from "../DataContext";
 import EmojiPicker from "emoji-picker-react";
 import {
   FaChevronLeft,
@@ -9,11 +10,12 @@ import {
 } from "react-icons/fa";
 
 export default class AddCategory extends Component {
+  static contextType = DataContext;
   constructor(props) {
     super(props);
-    this.nameRef = createRef();
     this.carouselRef = createRef();
     this.state = {
+      name: this.selectedCategory ? this.selectedCategory.name : "",
       showEmojiPicker: false,
       selectedEmoji: "",
       categoryType: "Expense",
@@ -37,6 +39,26 @@ export default class AddCategory extends Component {
     document.removeEventListener("click", this.handleClickOutside);
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      JSON.stringify(prevState.transactions) !==
+      JSON.stringify(this.context.data)
+    ) {
+      fetch("http://localhost:8080/api/v1/categories")
+        .then((response) => response.json())
+        .then((data) => {
+          if (JSON.stringify(prevState.categories) !== JSON.stringify(data)) {
+            this.setState(
+              {
+                categories: data,
+              },
+              this.filterCategories
+            );
+          }
+        });
+    }
+  }
+
   fetchCategories = async () => {
     try {
       const response = await fetch("http://localhost:8080/api/v1/categories");
@@ -58,67 +80,131 @@ export default class AddCategory extends Component {
   submitCategory(event) {
     event.preventDefault();
     this.validateInput();
-  
-    if (this.nameRef.current.value.trim() !== "") {
+
+    if (this.state.name.trim() !== "") {
       let category = {
-        name: this.nameRef.current.value,
-        emoji: this.state.selectedEmoji === "" ? "🚀" : this.state.selectedEmoji,
+        name: this.state.name,
+        emoji:
+          this.state.selectedEmoji === "" ? "🚀" : this.state.selectedEmoji,
         type: this.state.categoryType,
       };
-  
-      fetch("http://localhost:8080/api/v1/categories", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(category),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            if (response.status === 409) {
-              this.setState({
-                notification: {
-                  type: "error",
-                  message:
-                    "Category with this name already exists. Please try again.",
-                },
-              });
-            } else {
-              this.setState({
-                notification: {
-                  type: "error",
-                  message: "Error adding category. Please try again.",
-                },
-              });
-            }
-            throw new Error("Failed to add category");
+
+      if (this.state.selectedCategory) {
+        fetch(
+          `http://localhost:8080/api/v1/categories/${this.state.selectedCategory.id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(category),
           }
-          return response.json();
-        })
-        .then((newCategory) => {
-          this.setState(
-            (prevState) => ({
-              categories: [...prevState.categories, newCategory],
+        )
+          .then((response) => {
+            if (!response.ok) {
+              if (response.status === 409) {
+                this.setState({
+                  notification: {
+                    type: "error",
+                    message:
+                      "Category with this name already exists. Please try again.",
+                  },
+                });
+              } else {
+                this.setState({
+                  notification: {
+                    type: "error",
+                    message: "Error updating category. Please try again.",
+                  },
+                });
+              }
+              throw new Error("Failed to update category");
+            }
+
+            var res = response.json();
+            this.context.setData(res);
+            this.setState({
               showSuccessNotification: true,
               showErrorNotification: false,
-            }),
-            this.filterCategories
-          );
+              notification: {
+                type: "success",
+                message:
+                  "Category successfully updated.",
+              },
+            });
   
-          setTimeout(() => {
-            this.setState({ showSuccessNotification: false });
-          }, 3000);
+            setTimeout(() => {
+              this.setState({ showSuccessNotification: false });
+            }, 3000);
+          })
+          .catch(() => {
+            this.setState({ showErrorNotification: true });
+
+            setTimeout(() => {
+              this.setState({ showErrorNotification: false });
+            }, 3000);
+          });
+      } else {
+        fetch("http://localhost:8080/api/v1/categories", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(category),
         })
-        .catch(() => {
-          this.setState({ showErrorNotification: true });
-  
-          setTimeout(() => {
-            this.setState({ showErrorNotification: false });
-          }, 3000);
-        });
+          .then((response) => {
+            if (!response.ok) {
+              if (response.status === 409) {
+                this.setState({
+                  notification: {
+                    type: "error",
+                    message:
+                      "Category with this name already exists. Please try again.",
+                  },
+                });
+              } else {
+                this.setState({
+                  notification: {
+                    type: "error",
+                    message: "Error adding category. Please try again.",
+                  },
+                });
+              }
+              throw new Error("Failed to add category");
+            }
+            var res = response.json();
+            this.context.setData(res);
+            return res;
+          })
+          .then((newCategory) => {
+            this.setState(
+              (prevState) => ({
+                categories: [...prevState.categories, newCategory],
+                showSuccessNotification: true,
+                showErrorNotification: false,
+                notification: {
+                  type: "success",
+                  message: "New category successfully added!",
+                },
+              }),
+              this.filterCategories
+            );
+
+            setTimeout(() => {
+              this.setState({ showSuccessNotification: false });
+            }, 3000);
+          })
+          .catch(() => {
+            this.setState({ showErrorNotification: true });
+
+            setTimeout(() => {
+              this.setState({ showErrorNotification: false });
+            }, 3000);
+          });
+      }
     }
-  }  
-  
+  }
+
   handleClickOutside = (event) => {
     this.setState({
       showError: false,
@@ -137,11 +223,6 @@ export default class AddCategory extends Component {
       showEmojiPicker: !prevState.showEmojiPicker,
       isHovered: false, // Reset hover state when opening the picker
     }));
-  };
-
-  openEditCategory = (event) => {
-    event.preventDefault();
-    this.setState({ showEditCategory: true });
   };
 
   filterCategories = () => {
@@ -163,33 +244,37 @@ export default class AddCategory extends Component {
     }
   };
 
-  setCategory = (categoryId) => {
-    this.setState((prevState) => ({
-      selectedCategory:
-        prevState.selectedCategory === categoryId ? null : categoryId,
-    }));
+  setCategory = (category) => {
+    this.setState((prevState) => {
+      const isDeselecting = prevState.selectedCategory?.id === category.id;
+      return {
+        selectedCategory: isDeselecting ? null : category,
+        name: isDeselecting ? "" : category.name, // Clear name when deselecting
+      };
+    });
   };
 
   handleToggle = () => {
     const newCategoryType =
       this.state.categoryType === "Expense" ? "Income" : "Expense";
-    this.setState(
-      { categoryType: newCategoryType },
-      this.filterCategories
-    );
+    this.setState({ categoryType: newCategoryType }, this.filterCategories);
   };
 
   validateInput = () => {
-    const value = this.nameRef.current.value;
+    const value = this.state.name;
     this.setState({ showError: value.trim() == "" });
   };
 
+  handleNameChange = (e) => {
+    this.setState({ name: e.target.value });
+  };
+
   render() {
-    const { selectedCategory, categoryType, loading, error } = this.state;
+    const { name, selectedCategory, categoryType, loading, error } = this.state;
 
     return (
       <div className="flex justify-center items-center">
-        <div className="w-full max-w-md bg-white rounded shadow-lg p-6">
+        <div className={`w-full max-w-md bg-white rounded shadow-lg p-6`}>
           <h1 className="text-xl font-semibold text-gray-700 text-center pb-4">
             Category Management
           </h1>
@@ -206,11 +291,12 @@ export default class AddCategory extends Component {
                   <div className="flex items-center h-10">
                     <input
                       type="text"
-                      ref={this.nameRef}
                       className={`bg-gray-200 bg-opacity-70 rounded-lg h-10 w-full px-4 focus:outline-none focus:ring-0 focus:border-violet-500 text-gray-700  ${
                         this.state.showError ? "border-red-500" : ""
                       }`}
                       placeholder="Enter category"
+                      onChange={this.handleNameChange}
+                      value={name}
                     />
 
                     {/* Button for Emoji Picker */}
@@ -220,8 +306,16 @@ export default class AddCategory extends Component {
                       onMouseEnter={() => this.setState({ isHovered: true })}
                       onMouseLeave={() => this.setState({ isHovered: false })}
                       className={`flex-shrink-0 w-10 h-10 mr-2 ml-1 rounded-lg flex justify-center items-center 
-                        ${this.state.showEmojiPicker ? "bg-gray-300" : "bg-gray-200"} 
-                        ${!this.state.showEmojiPicker && this.state.isHovered ? "hover:bg-gray-300" : "" }`}
+                        ${
+                          this.state.showEmojiPicker
+                            ? "bg-gray-300"
+                            : "bg-gray-200"
+                        } 
+                        ${
+                          !this.state.showEmojiPicker && this.state.isHovered
+                            ? "hover:bg-gray-300"
+                            : ""
+                        }`}
                     >
                       {this.state.selectedEmoji || "🚀"}
                     </button>
@@ -237,9 +331,7 @@ export default class AddCategory extends Component {
 
                 {/* Emoji Picker */}
                 {this.state.showEmojiPicker && (
-                  <div
-                    className="absolute z-10 mt-2 bg-white"
-                  >
+                  <div className="absolute z-10 mt-2 bg-white">
                     <EmojiPicker onEmojiClick={this.handleEmojiClick} />
                   </div>
                 )}
@@ -305,11 +397,11 @@ export default class AddCategory extends Component {
                           key={category.id}
                           onClick={(e) => {
                             e.preventDefault();
-                            this.setCategory(category.id);
+                            this.setCategory(category);
                           }}
                           className={`text-gray-600 rounded-lg px-2 py-1 text-xs font-medium transition
                             ${
-                              selectedCategory === category.id
+                              selectedCategory === category
                                 ? "bg-violet-500 text-white"
                                 : "bg-gray-200 text-gray-600 hover:bg-gray-300 transition"
                             }`}
@@ -330,14 +422,6 @@ export default class AddCategory extends Component {
                     onClick={() => this.scrollCarousel("right")}
                     className="text-gray-500 cursor-pointer ml-2 mr-4"
                   />
-
-                  {/* Edit Category Button */}
-                  <button
-                    onClick={this.openEditCategory}
-                    className="w-1/4 bg-gray-200 text-gray-600 rounded-lg flex items-center justify-center p-2 hover:bg-gray-300 transition"
-                  >
-                    <FaEdit />
-                  </button>
                 </div>
               </div>
             </div>
@@ -348,13 +432,15 @@ export default class AddCategory extends Component {
                 type="submit"
                 className="w-full bg-violet-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-violet-600 transition"
               >
-                Add Category
+                {this.state.selectedCategory
+                  ? "Update Category"
+                  : "Add Category"}
               </button>
 
               {this.state.showSuccessNotification && (
                 <div className="z-10 fixed top-4 right-4 border bg-white border-green-500 text-gray-700 py-2 px-4 rounded-lg shadow-md flex items-center space-x-2">
                   <FaCheckCircle className="text-green-500" size={20} />
-                  <span>New category successfully added!</span>
+                  <span>{this.state.notification.message}</span>
                 </div>
               )}
 

@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { DataContext } from "../DataContext";
 import { FaEdit, FaTimes } from "react-icons/fa";
 import AddTransaction from "./AddTransaction";
 
 const SingleTransaction = ({ transaction }) => {
+  const { setData } = useContext(DataContext);
   const [showEditTransaction, setShowEditTransaction] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
@@ -21,9 +23,9 @@ const SingleTransaction = ({ transaction }) => {
       if (response.ok) {
         // TBD
       }
-      return response.json();
+      setData(response);
+      return response.text();
     });
-    window.location.reload();
   };
 
   const closeEditTransaction = () => {

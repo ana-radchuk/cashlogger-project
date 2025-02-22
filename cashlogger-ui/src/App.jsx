@@ -2,11 +2,18 @@ import AddCategory from "./components/category/AddCategory";
 import Transaction from "./components/transaction/Transaction";
 import CurrentBalance from "./components/CurrentBalance";
 import AddTransaction from "./components/transaction/AddTransaction";
+import { DataProvider } from "./components/DataContext";
 
 const App = () => {
   return (
     <div className="flex flex-col space-y-4">
-      <div>
+      <DataProvider>
+        <Transaction />
+        <AddTransaction />
+        <AddCategory />
+      </DataProvider>
+
+      {/* <div>
         <Transaction />
       </div>
       <div>
@@ -14,7 +21,7 @@ const App = () => {
       </div>
       <div>
         <AddCategory />
-      </div>
+      </div> */}
       {/* <div>
         <CurrentBalance />
       </div> */}
