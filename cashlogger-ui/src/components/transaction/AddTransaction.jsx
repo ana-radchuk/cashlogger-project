@@ -182,6 +182,8 @@ export default class AddTransaction extends Component {
               showErrorNotification: false,
             });
 
+            this.resetForm();
+
             setTimeout(() => {
               this.setState({ showSuccessNotification: false });
             }, 3000);
@@ -195,6 +197,16 @@ export default class AddTransaction extends Component {
           });
       }
     }
+  };
+
+  resetForm = () => {
+    this.setState({
+      name: "",
+      amount: "",
+      transactionType: "Expense",
+      categories: [],
+      selectedDateTime: new Date(),
+    });
   };
 
   validateInput = () => {
