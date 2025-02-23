@@ -6,6 +6,10 @@ import com.radchuk.cashlogger.domain.Type;
 import com.radchuk.cashlogger.domain.request.TransactionRequest;
 import com.radchuk.cashlogger.repository.TransactionRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
@@ -43,8 +47,9 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
-    public List<Transaction> getAllTransactions() {
-        return transactionRepository.findAll();
+    public Page<Transaction> getAllTransactions(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("date").descending());
+        return transactionRepository.findAll(pageable);
     }
 
     public Transaction getTransactionById(Long transactionId) {

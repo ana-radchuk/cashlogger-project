@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -78,8 +79,8 @@ public class TransactionController {
                     )
             }
     )
-    public List<Transaction> getAllTransactions() {
-        return transactionService.getAllTransactions();
+    public Page<Transaction> getAllTransactions( @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        return transactionService.getAllTransactions(page, size);
     }
 
     @GetMapping("/{id}")
