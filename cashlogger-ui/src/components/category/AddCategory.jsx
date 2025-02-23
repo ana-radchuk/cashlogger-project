@@ -42,7 +42,7 @@ export default class AddCategory extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (
-      JSON.stringify(prevState.transactions) !==
+      JSON.stringify(prevState.categories) !==
       JSON.stringify(this.context.data)
     ) {
       fetch("http://localhost:8080/api/v1/categories")

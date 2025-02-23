@@ -18,6 +18,7 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class TransactionService {
+
     private final TransactionRepository transactionRepository;
     private final CategoryService categoryService;
 
@@ -48,9 +49,17 @@ public class TransactionService {
     }
 
     public Page<Transaction> getAllTransactions(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("date").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return transactionRepository.findAll(pageable);
     }
+
+//    public List<Transaction> getAllTransactions() {
+//        return transactionRepository.findAll();
+//    }
+
+//    public List<Transaction> getTransactionsByMonth(int year, int month) {
+//        return transactionRepository.findByMonthAndYear(year, month);
+//    }
 
     public Transaction getTransactionById(Long transactionId) {
         return transactionRepository
