@@ -83,41 +83,23 @@ public class TransactionController {
         return transactionService.getAllTransactions(page, size);
     }
 
-//    @GetMapping
-//    @Operation(
-//            summary = "Get all transactions",
-//            responses = {
-//                    @ApiResponse(
-//                            responseCode = "200",
-//                            description = "Transactions retrieved",
-//                            content = @Content(
-//                                    mediaType = "application/json",
-//                                    array = @ArraySchema(schema = @Schema(implementation = Transaction.class))
-//                            )
-//                    )
-//            }
-//    )
-//    public List<Transaction> getAllTransactions() {
-//        return transactionService.getAllTransactions();
-//    }
-
-//    @GetMapping("/{year}/{month}")
-//    @Operation(
-//            summary = "Get all transactions by month",
-//            responses = {
-//                    @ApiResponse(
-//                            responseCode = "200",
-//                            description = "Transactions retrieved",
-//                            content = @Content(
-//                                    mediaType = "application/json",
-//                                    array = @ArraySchema(schema = @Schema(implementation = Transaction.class))
-//                            )
-//                    )
-//            }
-//    )
-//    public List<Transaction> getTransactionsByMonth(@PathVariable int year, @PathVariable int month) {
-//        return transactionService.getTransactionsByMonth(year, month);
-//    }
+    @GetMapping("/{year}/{month}")
+    @Operation(
+            summary = "Get all transactions by month",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Transactions retrieved",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = Transaction.class))
+                            )
+                    )
+            }
+    )
+    public List<Transaction> getTransactionsByMonth(@PathVariable int year, @PathVariable int month) {
+        return transactionService.getTransactionsByMonth(year, month);
+    }
 
     @GetMapping("/{id}")
     @Operation(

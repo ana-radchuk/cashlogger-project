@@ -53,13 +53,9 @@ public class TransactionService {
         return transactionRepository.findAll(pageable);
     }
 
-//    public List<Transaction> getAllTransactions() {
-//        return transactionRepository.findAll();
-//    }
-
-//    public List<Transaction> getTransactionsByMonth(int year, int month) {
-//        return transactionRepository.findByMonthAndYear(year, month);
-//    }
+    public List<Transaction> getTransactionsByMonth(int year, int month) {
+        return transactionRepository.findByMonthAndYear(year, month);
+    }
 
     public Transaction getTransactionById(Long transactionId) {
         return transactionRepository
@@ -69,5 +65,9 @@ public class TransactionService {
 
     public void deleteTransactionById(Long transactionId) {
         transactionRepository.deleteById(transactionId);
+    }
+
+    private List<Transaction> getAllTransactions() {
+        return transactionRepository.findAll();
     }
 }
