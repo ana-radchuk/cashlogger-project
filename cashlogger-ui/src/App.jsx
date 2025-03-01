@@ -1,6 +1,6 @@
 import AddCategory from "./components/category/AddCategory";
 import Transaction from "./components/transaction/Transaction";
-import CurrentBalance from "./components/CurrentBalance";
+import CurrentBalance from "./components/balance/CurrentBalance";
 import AddTransaction from "./components/transaction/AddTransaction";
 import { DataProvider } from "./components/DataContext";
 
@@ -8,6 +8,7 @@ const App = () => {
   return (
     <div className="flex flex-col space-y-4">
       <DataProvider>
+        <CurrentBalance />
         <Transaction />
         <AddTransaction />
         <AddCategory />

@@ -182,8 +182,6 @@ export default class AddTransaction extends Component {
               showErrorNotification: false,
             });
 
-            this.resetForm();
-
             setTimeout(() => {
               this.setState({ showSuccessNotification: false });
             }, 3000);
